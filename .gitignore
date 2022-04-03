@@ -1,2 +1,4 @@
 /.idea
 /backend/backend/__pycache__
+backend/image_process/__pycache__
+backend/params
