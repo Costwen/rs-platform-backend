@@ -6,3 +6,6 @@ urllib3
 virtualenv
 asgiref
 django-rest-framework
+PyMySQL
+mysqlclient
+redis

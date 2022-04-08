@@ -26,7 +26,16 @@ SECRET_KEY = 'xptv%pmrnbvf@f_i89qv9zux#ad^ihoqq0ll+8!^+%yk2779lr'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+LOGIN_URL = '/account/login/'
+
 ALLOWED_HOSTS = ["*"]
+
+AUTH_USER_MODEL = 'account.User'
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    'account.auth_backend.Email_auth'
+]
 
 # Application definition
 
@@ -38,14 +47,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "image_process",
+    "account",
     "rest_framework"
 ]
+
+#TODO:生产环境下请把CSRF打开。
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -76,8 +88,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS':{
+            "init_command":"SET sql_mode='STRICT_TRANS_TABLES'"
+        },
+        'NAME': 'remote_sensing',
+        'USER': 'backend',
+        'PASSWORD': 'buaa2022gogogo',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'CONN_MAX_AGE': 60
     }
 }
 
@@ -117,4 +137,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-predictor = Predictor(Config)
+# predictor = Predictor(Config)
