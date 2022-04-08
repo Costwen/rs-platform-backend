@@ -15,3 +15,5 @@ class Config:
 
     constrast_model_path = "params/retrieval.pdmodel"
     constrast_param_path = "params/retrieval.pdiparams"
+
+    enable_gpu = False

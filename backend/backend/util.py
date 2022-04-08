@@ -16,6 +16,8 @@ class Predictor:
         self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
         self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
         self.retrieval_config = paddle_infer.Config(config.retrieval_model_path, config.retrieval_param_path)
+        if config.enable_gpu:
+            self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
         self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
         self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
         self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
@@ -66,8 +68,7 @@ class Predictor:
     def retrieval_predict(self, file):
         input_names = self.retrieval_predictor.get_input_names()
         input_handle = self.retrieval_predictor.get_input_handle(input_names[0])
-        input = file
-        input_data = np.array(input).astype("float32")
+        input_data = np.array(file.resize([1024,1024])).astype("float32")
         input_data = self._normalize(input_data)
         input = input_data.transpose([2, 0, 1])
         input = input[np.newaxis, :, :, :]
@@ -83,5 +84,5 @@ class Predictor:
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze(0).astype("uint8")
         output_img = self._get_pseudo_color_map(output)
-        output_img.save("output.png")
+        output_img.save("output.png")# resize
         return output_img
