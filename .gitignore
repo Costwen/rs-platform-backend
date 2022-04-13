@@ -8,3 +8,5 @@ backend/account/migrations
 backend/image_process/migrations
 backend/image_process/__pycache__/
 backend/db.sqlite3
+media
+static

@@ -2,23 +2,34 @@ from django.http import request,JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 # from backend.settings import predictor as P
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required,permission_required
 import PIL
 from image_process.models import *
 
 @api_view(["POST"])
-@login_required(redirect_field_name = "next",login_url=None)
+# @login_required(redirect_field_name = "next",login_url=None)
 @permission_required("image_process.view_inference",raise_exception=True)
 def retrieval(request):
     print(request.META["REMOTE_ADDR"])
     img_file = request.FILES["img"]
-    print(img_file)
-    s = PIL.Image.open(img_file)
+    s = PIL.Image.open(img_file)  # 图片大小检查在前端完成,
+    # TODO：为方便测试，这里暂不要求登录
+    if isinstance(request.user,AnonymousUser):
+        new_inference = Inference(user_id = get_user_model().objects.get(pk=1),raw = img_file)
+        img_file.save()
+    else:
+        new_inference = Inference(user_id=request.user, raw=img_file)
+        img_file.save()
+    new_inference.save()
     # img_file.save()
     # result = P.retrieval_predict(s)
     return JsonResponse({
-        "code":status.HTTP_200_OK
+        "code":status.HTTP_200_OK,
+        "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+new_inference.raw.name
     })
+# TODO:编写图片的Storage类，保存路径信息需要隐藏，文件重命名需要解决
 
 
 @api_view(["POST"])

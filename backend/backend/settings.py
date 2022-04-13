@@ -137,4 +137,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = '/media/'
+
+SESSION_COOKIE_AGE = 3600
+
 # predictor = Predictor(Config)
