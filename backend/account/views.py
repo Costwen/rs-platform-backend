@@ -21,7 +21,7 @@ def login_view(request):
     user.get_user_permissions()
     if user is not None:
         login(request, user)
-        # TODO: do something, may be redirect to original view?
+        # TODO: do something, may be redirecting to original view?
         return JsonResponse({
             "code":status.HTTP_200_OK,
             "msg":"login successfully"
