@@ -8,6 +8,12 @@ import paddle.inference as paddle_infer
 import PIL
 import time
 import numpy as np
+import requests
+from PIL import Image
+from io import BytesIO
+
+Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}&z=18&scl=1"
+
 
 class Predictor:
     def __init__(self, config):
@@ -86,3 +92,24 @@ class Predictor:
         output_img = self._get_pseudo_color_map(output)
         output_img.save("output.png")# resize
         return output_img
+
+
+class MapImageHelper:
+    @staticmethod
+    def getImage(x, y, size=[4,4]):
+        if len(size) != 2:
+            raise Exception("map image size should have exactly two coordinate")
+        im_list = []
+        for i in range(0,size[0]):
+            for j in range(0,size[1]):
+                url = Map_url_template.format(x+i,y+j)
+                response = requests.get(url)
+                data = response.content
+                image = Image.open(BytesIO(data)).convert('RGB')
+                im = np.array(image)
+                im_list.append(im)
+        im_list = np.array(im_list).reshape([4, 4, 256, 256, 3])
+        im_list = np.transpose(im_list, [1, 2, 0, 3, 4])
+        im_list = im_list.reshape([1024, 1024, 3])
+        im = Image.fromarray(im_list)
+        return im

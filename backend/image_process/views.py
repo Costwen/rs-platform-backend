@@ -1,7 +1,7 @@
 from django.http import request,JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
-# from backend.settings import predictor as P
+from backend.settings import predictor as P
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required,permission_required
@@ -18,13 +18,14 @@ def retrieval(request):
     # TODO：为方便测试，这里暂不要求登录
     if isinstance(request.user,AnonymousUser):
         new_inference = Inference(user_id = get_user_model().objects.get(pk=1),raw = img_file)
-        img_file.save()
+        # img_file.save()
     else:
         new_inference = Inference(user_id=request.user, raw=img_file)
-        img_file.save()
+        # img_file.save()
     new_inference.save()
     # img_file.save()
-    # result = P.retrieval_predict(s)
+    result = P.retrieval_predict(s)
+    result.show()
     return JsonResponse({
         "code":status.HTTP_200_OK,
         "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+new_inference.raw.name
