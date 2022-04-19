@@ -24,11 +24,12 @@ def retrieval(request):
         # img_file.save()
     new_inference.save()
     # img_file.save()
-    result = P.retrieval_predict(s)
-    result.show()
+    result_img,result_stat = P.retrieval_predict(s)
+    result_img.show()
     return JsonResponse({
         "code":status.HTTP_200_OK,
-        "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+new_inference.raw.name
+        "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+new_inference.raw.name,
+        "stats":list(result_stat)
     })
 # TODO:编写图片的Storage类，保存路径信息需要隐藏，文件重命名需要解决
 

@@ -16,4 +16,6 @@ class Config:
     constrast_model_path = "params/retrieval.pdmodel"
     constrast_param_path = "params/retrieval.pdiparams"
 
+    retrieval_category = ["Bare soil","Building","Pavement","Road","Vegetation","Water"]
+
     enable_gpu = False
