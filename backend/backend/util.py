@@ -17,16 +17,17 @@ Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}
 
 class Predictor:
     def __init__(self, config):
-        self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
-        self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
-        self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
-        self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
+        self.config = config
+        # self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
+        # self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
+        # self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
+        # self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
         self.retrieval_config = paddle_infer.Config(config.retrieval_model_path, config.retrieval_param_path)
         if config.enable_gpu:
             self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
         self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
-        self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
-        self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
+        # self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
+        # self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
 
     @classmethod
     def _get_color_map_list(cls,num_classes, custom_color=None):
@@ -89,9 +90,10 @@ class Predictor:
         output_handle = self.retrieval_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze(0).astype("uint8")
+        stats = zip(self.config.retrieval_category,np.bincount(output)[:len(self.config.retrieval_category)])
         output_img = self._get_pseudo_color_map(output)
-        output_img.save("output.png")# resize
-        return output_img
+        output_img.save("output.png")
+        return output_img,stats
 
 
 class MapImageHelper:
