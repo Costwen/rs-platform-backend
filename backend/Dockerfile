@@ -1,6 +1,6 @@
 FROM python:3.9
 
-RUN apt-get update && apt install -y netcat
+RUN apt-get update && apt-get install -y netcat
 
 MAINTAINER jxd
 # 设置解释器不要生成字节码 pyc
