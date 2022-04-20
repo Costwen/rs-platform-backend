@@ -46,14 +46,16 @@ services:
                 build: ../backend # 基于一个Dockerfile启动，每次启动都会构建容器
                 expose:
                         - "8000"
-                voluems:
+                volumes:
                         - ../backend:/root/backend
-                        - ./compose/uwsgi.log:/tmp/uwsgi.log
+                        - ./compose/uwsgi/:/tmp
+                        - static_vol:/root/backend/static
+                        - media_vol:/root/backend/media
                 networks:
                         - nginx_network
                         - db_network
                         - redis_network
-                depends_on:
+                depends_on: # 决定了容器启动的先后顺序
                         - db
                         - redis
                 restart: always
@@ -71,8 +73,6 @@ services:
                         - ./compose/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
                         - ./compose/nginx/ssl:/usr/share/nginx/ssl # 挂载证书
                         - ./compose/nginx/log:/var/log/nginx
-                        - static_vol:/root/backend/static
-                        - media_vol:/root/backend/media
                 networks:
                         - nginx_network
                 depends_on:

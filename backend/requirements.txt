@@ -9,3 +9,4 @@ django-rest-framework
 PyMySQL
 mysqlclient
 redis
+django-redis
