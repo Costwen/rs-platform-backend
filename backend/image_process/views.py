@@ -1,7 +1,7 @@
 from django.http import request,JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
-from backend.settings import predictor as P
+# from backend.settings import predictor as P
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required,permission_required
@@ -24,12 +24,12 @@ def retrieval(request):
         # img_file.save()
     new_inference.save()
     # img_file.save()
-    result_img,result_stat = P.retrieval_predict(s)
-    result_img.show()
+    # result_img,result_stat = P.retrieval_predict(s)
+    # result_img.show()
     return JsonResponse({
         "code":status.HTTP_200_OK,
         "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+new_inference.raw.name,
-        "stats":list(result_stat)
+        # "stats":list(result_stat)
     })
 # TODO:编写图片的Storage类，保存路径信息需要隐藏，文件重命名需要解决
 
