@@ -9,7 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 COPY pip.conf /root/.pip/pip.conf
-
+RUN pip config set global.index-url http://mirrors.aliyun.com/pypi/simple
+RUN pip config set install.trusted-host mirrors.aliyun.com
 ENV APP_HOME=/root/backend
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
