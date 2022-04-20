@@ -1,7 +1,7 @@
 version: "3"
 
 volumes: # 创建四个有名数据卷
-        db_vol
+#        db_vol
         redis_vol
         media_vol
         static_vol
@@ -9,8 +9,8 @@ volumes: # 创建四个有名数据卷
 networks:
         nginx_network:
                 driver: bridge
-        db_network:
-                driver: bridge
+#        db_network:
+#                driver: bridge
         redis_network:
                 driver: bridge
 
@@ -27,19 +27,19 @@ services:
                         - "6379:6379"
                 restart: always # 若容器运行发生错误时，一种重启
 
-        db:
-                image: mysql:latest # 基于已有镜像启动
-                env_file:
-                        - ./myproject/.env # 使用环境变量文件
-                networks:
-                        - db_network
-                volumes:
-                        - db_vol:/var/lib/mysql:rw #rw为可读可写
-                        - ./compose/mysql/conf/my.cnf:/etc/mysql/my.cnf #挂载配置文件
-                        - ./compose/mysql/init:/docker-entrypoint-initdb.q #初始化sql脚本
-                ports:
-                        - "3306:3306"
-                restart: always
+#        db:
+#                image: mysql:latest # 基于已有镜像启动
+#                env_file:
+#                        - ./myproject/.env # 使用环境变量文件
+#                networks:
+#                        - db_network
+#                volumes:
+#                        - db_vol:/var/lib/mysql:rw #rw为可读可写
+#                        - ./compose/mysql/conf/my.cnf:/etc/mysql/my.cnf #挂载配置文件
+#                        - ./compose/mysql/init:/docker-entrypoint-initdb.q #初始化sql脚本
+#                ports:
+#                        - "3306:3306"
+#                restart: always
 
 
         web:
@@ -53,10 +53,10 @@ services:
                         - media_vol:/root/backend/media
                 networks:
                         - nginx_network
-                        - db_network
+#                        - db_network
                         - redis_network
                 depends_on: # 决定了容器启动的先后顺序
-                        - db
+#                        - db
                         - redis
                 restart: always
                 tty: true
@@ -73,6 +73,8 @@ services:
                         - ./compose/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
                         - ./compose/nginx/ssl:/usr/share/nginx/ssl # 挂载证书
                         - ./compose/nginx/log:/var/log/nginx
+                        - media_vol:/usr/share/nginx/html/media
+                        - static_vol:/usr/share/nginx/html/static
                 networks:
                         - nginx_network
                 depends_on:
