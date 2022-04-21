@@ -17,7 +17,7 @@ WORKDIR $APP_HOME
 
 ADD . $APP_HOME
 
-RUN /usr/local/bin/python -m pip install upgrade pip
+RUN pip install upgrade pip
 
 RUN pip install -r requirements.txt
 
