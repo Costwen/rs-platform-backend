@@ -21,6 +21,8 @@ RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
+RUN python -m pip install paddlepaddle==2.2.2 -i https://mirror.baidu.com/pypi/simple
+
 RUN chmod +x ./start.sh
 # 指定容器运行后执行的命令，这里指定运行启动脚本
 ENTRYPOINT  /bin/bash ./start.sh

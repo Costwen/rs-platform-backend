@@ -1,5 +1,4 @@
 uWSGI
-paddlepaddle==2.2.2
 Pillow
 django
 urllib3
