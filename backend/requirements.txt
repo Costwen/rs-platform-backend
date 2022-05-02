@@ -10,3 +10,4 @@ mysqlclient
 redis
 django-redis
 opencv-python
+requests
