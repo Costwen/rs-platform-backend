@@ -7,7 +7,7 @@ MAINTAINER jxd
 ENV PYTHONDONTWRITEBYTECODE 1
 
 ENV PYTHONUNBUFFERED 1
-RUN apt-get install python3-opencv
+RUN apt-get install -y python3-opencv
 
 COPY pip.conf /root/.pip/pip.conf
 RUN pip config set global.index-url http://mirrors.aliyun.com/pypi/simple
