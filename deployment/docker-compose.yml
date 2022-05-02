@@ -16,8 +16,7 @@ networks:
 
 services:
         redis:
-                image:
-                        - redis:6
+                image:  redis:6
                 command: redis-server /etc/redis/redis.conf
                 networks:
                         - redis_network
