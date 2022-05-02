@@ -22,7 +22,7 @@ services:
                         - redis_network
                 volumes:
                         - redis_vol:/data # 通过挂载给redis备份,有很多种书写方式，这里的意思是将容器内/data目录映射到redis_vol这个volume下保存
-                        - ./compose/redis:/home #左边是宿主机相对于docker-compose.yml文件的路径，右边是容器内路径
+                        - ./compose/redis/:/etc/redis/ #左边是宿主机相对于docker-compose.yml文件的路径，右边是容器内路径
 
                 ports:
                         - "6379:6379"

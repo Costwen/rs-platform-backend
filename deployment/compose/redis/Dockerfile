@@ -1,0 +1,6 @@
+FROM redis:latest
+
+RUN mkdir -p /etc/redis
+
+#关闭daemon，前台执行
+CMD ["redis-server", "/etc/redis/redis.conf;"]
