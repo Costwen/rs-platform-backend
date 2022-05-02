@@ -6,7 +6,7 @@
 #  sleep 3
 #done
 
-python manage.py makemigrations&&
+python manage.py makemigrations account image_process&&
 python manage.py migrate&&
 uwsgi /root/backend/uwsgi.ini&&
 # tail空命令，保证有一个任务在前台执行，防止容器退出
