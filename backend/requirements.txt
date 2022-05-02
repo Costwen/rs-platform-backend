@@ -9,3 +9,4 @@ PyMySQL
 mysqlclient
 redis
 django-redis
+opencv-python

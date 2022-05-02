@@ -15,7 +15,6 @@ def retrieval(request):
     print(request.META["REMOTE_ADDR"])
     img_file = request.FILES["img"]
     s = PIL.Image.open(img_file)  # 图片大小检查在前端完成,
-    # TODO：为方便测试，这里暂不要求登录
     if isinstance(request.user,AnonymousUser):
         new_inference = Inference(user_id = get_user_model().objects.get(pk=1),raw = img_file)
         # img_file.save()
@@ -23,6 +22,12 @@ def retrieval(request):
         new_inference = Inference(user_id=request.user, raw=img_file)
         # img_file.save()
     new_inference.save()
+    if request.data["task"] == "road":
+        pass
+    elif request.data["task"] == "building":
+        pass
+    elif request.data["task"] == "water":
+        pass
     # img_file.save()
     # result_img,result_stat = P.retrieval_predict(s)
     # result_img.show()
@@ -36,8 +41,24 @@ def retrieval(request):
 
 @api_view(["POST"])
 def sort(request):
+    print(request.META["REMOTE_ADDR"])
+    img_file = request.FILES["img"]
+    s = PIL.Image.open(img_file)  # 图片大小检查在前端完成,
+    # TODO：为方便测试，这里暂不要求登录
+    if isinstance(request.user, AnonymousUser):
+        new_inference = Inference(user_id=get_user_model().objects.get(pk=1), raw=img_file)
+        # img_file.save()
+    else:
+        new_inference = Inference(user_id=request.user, raw=img_file)
+        # img_file.save()
+    new_inference.save()
+    # img_file.save()
+    # result_img,result_stat = P.retrieval_predict(s)
+    # result_img.show()
     return JsonResponse({
-        "code": status.HTTP_200_OK
+        "code": status.HTTP_200_OK,
+        "raw_image_url": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + new_inference.raw.name,
+        # "stats":list(result_stat)
     })
 
 

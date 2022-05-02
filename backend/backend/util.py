@@ -11,6 +11,7 @@ import numpy as np
 import requests
 from PIL import Image
 from io import BytesIO
+import cv2
 
 Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}&z=18&scl=1"
 
@@ -63,6 +64,14 @@ class Predictor:
         im /= std
         return im
 
+    '''
+        利用图像闭运算去除结果中的空洞。
+    '''
+    def morph_close(self, image, size):
+        kernel = np.ones((size,size),np.uint8)
+        result = cv2.morphologyEx(image,cv2.MORPH_CLOSE,kernel)
+        return result
+
     def contrast_predict(self, np_img):
         pass
 
@@ -99,6 +108,7 @@ class Predictor:
         return output_img,stats
 
 
+
 class MapImageHelper:
     @staticmethod
     def getImage(x, y, size=[4,4]):
@@ -118,3 +128,4 @@ class MapImageHelper:
         im_list = im_list.reshape([1024, 1024, 3])
         im = Image.fromarray(im_list)
         return im
+
