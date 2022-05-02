@@ -10,3 +10,5 @@ backend/image_process/__pycache__/
 backend/db.sqlite3
 media
 static
+backend/*.png
+backend/*.jpg

@@ -89,8 +89,11 @@ class Predictor:
         output_names = self.retrieval_predictor.get_output_names()
         output_handle = self.retrieval_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
-        output = output_data.squeeze(0).astype("uint8")
-        stats = zip(self.config.retrieval_category,np.bincount(output)[:len(self.config.retrieval_category)])
+        output = output_data.squeeze().astype("uint8")
+        print(output_data.shape)
+        print(output.shape)
+        # print(np.bincount(output).shape)
+        stats = zip(self.config.retrieval_category, np.bincount(output.reshape(-1))[:len(self.config.retrieval_category)])
         output_img = self._get_pseudo_color_map(output)
         output_img.save("output.png")
         return output_img,stats
