@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required,permission_required
 import PIL
 from image_process.models import *
+from django.shortcuts import get_object_or_404
 
 
 @api_view(["POST"])
@@ -19,8 +20,7 @@ def retrieval(request):
         img_file = request.FILES["img"]
     else:
         x1,y1,x2,y2 = eval(request.data["x1"]),eval(request.data["y1"]),eval(request.data["x2"]),eval(request.data["y2"])
-        x1 =
-        img_file = MapImageHelper.getImage()
+        img_file = MapImageHelper.getImage(x1,y1,x2,y2)
     s = PIL.Image.open(img_file)  # 图片大小检查在前端完成,
     if isinstance(request.user,AnonymousUser):
         new_inference = Inference(user_id = get_user_model().objects.get(pk=1),raw = img_file)
@@ -81,3 +81,11 @@ def contrast(request):
     return JsonResponse({
         "code": status.HTTP_200_OK
     })
+
+
+@login_required()
+@api_view(["GET"])
+def result_detail(request):
+    user = request.user
+    result = get_object_or_404(Inference,user = user,pk = request.GET["id"])
+    return JsonResponse
