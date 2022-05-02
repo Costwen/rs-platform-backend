@@ -17,30 +17,15 @@ networks:
 services:
         redis:
                 image: redis:latest
-                command: redis-server /etc/redis/redis.conf
                 networks:
                         - redis_network
                 volumes:
                         - redis_vol:/data # 通过挂载给redis备份,有很多种书写方式，这里的意思是将容器内/data目录映射到redis_vol这个volume下保存
                         - ./compose/redis:/home #左边是宿主机相对于docker-compose.yml文件的路径，右边是容器内路径
+                command: redis-server /etc/redis/redis.conf
                 ports:
                         - "6379:6379"
-                restart: always # 若容器运行发生错误时，一种重启
-
-#        db:
-#                image: mysql:latest # 基于已有镜像启动
-#                env_file:
-#                        - ./myproject/.env # 使用环境变量文件
-#                networks:
-#                        - db_network
-#                volumes:
-#                        - db_vol:/var/lib/mysql:rw #rw为可读可写
-#                        - ./compose/mysql/conf/my.cnf:/etc/mysql/my.cnf #挂载配置文件
-#                        - ./compose/mysql/init:/docker-entrypoint-initdb.q #初始化sql脚本
-#                ports:
-#                        - "3306:3306"
-#                restart: always
-
+                restart: always # 若容器运行发生错误时，一直重启
 
         web:
                 build: ../backend # 基于一个Dockerfile启动，每次启动都会构建容器
