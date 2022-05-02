@@ -1,10 +1,10 @@
 version: "3"
 
 volumes: # 创建四个有名数据卷
-#        db_vol
-        redis_vol
-        media_vol
-        static_vol
+#        db_vol:
+        redis_vol:
+        media_vol:
+        static_vol:
 
 networks:
         nginx_network:
@@ -79,4 +79,4 @@ services:
                         - nginx_network
                 depends_on:
                         - web
-                restart: always
+                 restart: always
