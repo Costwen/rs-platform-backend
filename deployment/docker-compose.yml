@@ -62,7 +62,7 @@ services:
                 tty: true
                 stdin_open: true
                 extra_hosts:
-                        - "host.docker.internal:host-gateway"
+                        - "127.0.0.1:127.0.0.1"
 
         nginx:
                 build: ./compose/nginx
