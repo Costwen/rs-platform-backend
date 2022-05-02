@@ -95,7 +95,7 @@ DATABASES = {
         'NAME': 'remote_sensing',
         'USER': 'backend',
         'PASSWORD': 'buaa2022gogogo',
-        'HOST': '127.0.0.1',
+        'HOST': '121.37.88.255',
         'PORT': '3306',
         'CONN_MAX_AGE': 60
     }
