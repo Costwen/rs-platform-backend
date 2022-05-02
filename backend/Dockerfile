@@ -1,5 +1,5 @@
-FROM registry.baidubce.com/paddlepaddle/paddle:2.2.2
-
+#FROM registry.baidubce.com/paddlepaddle/paddle:2.2.2
+FROM python:3.6
 RUN apt-get update && apt-get install -y netcat
 
 MAINTAINER jxd
