@@ -110,16 +110,18 @@ class Predictor:
         return output_img,stats
 
 
+def toRad(value):
+    return value * np.pi / 180
+
 
 class MapImageHelper:
     @staticmethod
-    def getImage(x, y, size=[4,4]):
-        if len(size) != 2:
-            raise Exception("map image size should have exactly two coordinate")
+    def getImage(x1, y1, x2, y2, zoom = 17):
+        x1,y1,x2,y2 = MapImageHelper.coordinate_transfer(x1, y1, x2, y2, zoom)
         im_list = []
-        for i in range(0,size[0]):
-            for j in range(0,size[1]):
-                url = Map_url_template.format(x+i,y+j)
+        for i in range(x1,x2+1):
+            for j in range(y1,y2+1):
+                url = Map_url_template.format(i,j)
                 response = requests.get(url)
                 data = response.content
                 image = Image.open(BytesIO(data)).convert('RGB')
@@ -128,6 +130,17 @@ class MapImageHelper:
         im_list = np.array(im_list).reshape([4, 4, 256, 256, 3])
         im_list = np.transpose(im_list, [1, 2, 0, 3, 4])
         im_list = im_list.reshape([1024, 1024, 3])
+        # TODO crop here!
         im = Image.fromarray(im_list)
         return im
+
+
+    @staticmethod
+    def coordinate_transfer(x1, y1, x2, y2, zoom=17):
+        xtile_1 = np.floor((x1 + 180) / 360 * (1 << zoom))
+        ytile_1 = np.floor((1 - np.log(np.tan(toRad(y1)) + 1 / np.cos(toRad(y1))) / np.pi) / 2 * (1 << zoom))
+
+        xtile_2 = np.floor((x2 + 180) / 360 * (1 << zoom))
+        ytile_2 = np.floor((1 - np.log(np.tan(toRad(y2)) + 1 / np.cos(toRad(y2))) / np.pi) / 2 * (1 << zoom))
+        return  xtile_1,ytile_1,xtile_2,ytile_2
 
