@@ -16,7 +16,7 @@ networks:
 
 services:
         redis:
-                image: redis:latest
+                build: ./compose/redis
                 command: redis-server /home/redis.conf
                 networks:
                         - redis_network
