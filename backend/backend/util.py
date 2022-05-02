@@ -4,7 +4,7 @@ author:Bird Christopher
 date:2022//04//03
 """
 
-import paddle.inference as paddle_infer
+# import paddle.inference as paddle_infer
 import PIL
 import time
 import numpy as np
@@ -23,10 +23,12 @@ class Predictor:
         # self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
         # self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
         # self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
-        self.retrieval_config = paddle_infer.Config(config.retrieval_model_path, config.retrieval_param_path)
-        if config.enable_gpu:
-            self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
-        self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
+
+        # self.retrieval_config = paddle_infer.Config(config.retrieval_model_path, config.retrieval_param_path)
+        # if config.enable_gpu:
+        #     self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
+        # self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
+
         # self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
         # self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
 
