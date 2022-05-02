@@ -16,7 +16,7 @@ networks:
 
 services:
         redis:
-                image:  redis:5
+                image:  redis:5 #注意redis不要用太新的版本，否则会因为版本不兼容退出，并且没有任何提示
                 command: redis-server /etc/redis/redis.conf
                 networks:
                         - redis_network
@@ -29,6 +29,8 @@ services:
 
         web:
                 build: ../backend # 基于一个Dockerfile启动，每次启动都会构建容器
+                ports:
+                        - "8000:8000"
                 expose:
                         - "8000"
                 volumes:
@@ -40,9 +42,9 @@ services:
                         - nginx_network
 #                        - db_network
                         - redis_network
-#                depends_on: # 决定了容器启动的先后顺序
+                depends_on: # 决定了容器启动的先后顺序
 #                        - db
-#                        - redis
+                        - redis
                 restart: always
                 tty: true
                 stdin_open: true
