@@ -79,4 +79,4 @@ services:
                         - nginx_network
                 depends_on:
                         - web
-                 restart: always
+                restart: always
