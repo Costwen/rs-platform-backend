@@ -68,16 +68,13 @@ def view_workspace(request):
             "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+inference.raw.name,
             "upload_time":inference.upload_time,
             "task":inference.task,
-            "name":inference.name
+            "name":inference.name,
+            "id":inference.pk
         })
     return JsonResponse({
         "code":status.HTTP_200_OK,
         "results":results
     })
-
-@login_required
-def result_detail(request):
-
 
 @api_view(["POST"])
 def try_to_redirect(request):
