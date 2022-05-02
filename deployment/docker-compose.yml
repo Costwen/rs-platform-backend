@@ -17,7 +17,7 @@ networks:
 services:
         redis:
                 build: ./compose/redis
-                command: redis-server /home/redis.conf
+                command: redis-server /etc/redis/redis.conf
                 networks:
                         - redis_network
                 volumes:
