@@ -2,18 +2,25 @@ from django.http import request,JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 # from backend.settings import predictor as P
+from backend.util import MapImageHelper
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required,permission_required
 import PIL
 from image_process.models import *
 
+
 @api_view(["POST"])
 # @login_required(redirect_field_name = "next",login_url=None)
 @permission_required("image_process.view_inference",raise_exception=True)
 def retrieval(request):
     print(request.META["REMOTE_ADDR"])
-    img_file = request.FILES["img"]
+    if request.data["source"] == "upload":
+        img_file = request.FILES["img"]
+    else:
+        x1,y1,x2,y2 = eval(request.data["x1"]),eval(request.data["y1"]),eval(request.data["x2"]),eval(request.data["y2"])
+        x1 =
+        img_file = MapImageHelper.getImage()
     s = PIL.Image.open(img_file)  # 图片大小检查在前端完成,
     if isinstance(request.user,AnonymousUser):
         new_inference = Inference(user_id = get_user_model().objects.get(pk=1),raw = img_file)

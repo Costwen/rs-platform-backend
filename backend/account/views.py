@@ -57,16 +57,26 @@ def register_view(request):
 
 
 # TODO:缩略图的传输..
-# @login_required
+@login_required
 def view_workspace(request):
-    try:
-        request.session["sign"] = request.session["sign"]+1
-    except:
-        request.session["sign"] = 0
+    user = request.user
+    page_length = request.data["length"]
+    inferences = user.inference_set.all()
+    results = []
+    for inference in inferences:
+        results.append({
+            "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+inference.raw.name,
+            "upload_time":inference.upload_time,
+            "task":inference.task,
+            "name":inference.name
+        })
     return JsonResponse({
         "code":status.HTTP_200_OK,
-        "msg":"good to go"
+        "results":results
     })
+
+@login_required
+def result_detail(request):
 
 
 @api_view(["POST"])

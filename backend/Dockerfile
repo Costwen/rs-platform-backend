@@ -1,12 +1,15 @@
 #FROM registry.baidubce.com/paddlepaddle/paddle:2.2.2
 FROM python:3.6
+
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.backup
+COPY sources.list /etc/apt/sources.list
 RUN apt-get update && apt-get install -y netcat
 
 MAINTAINER jxd
 # 设置解释器不要生成字节码 pyc
 ENV PYTHONDONTWRITEBYTECODE 1
-
 ENV PYTHONUNBUFFERED 1
+
 RUN apt-get install -y python3-opencv
 
 COPY pip.conf /root/.pip/pip.conf
