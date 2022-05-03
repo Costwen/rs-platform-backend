@@ -31,6 +31,7 @@ services:
                 build: ../backend # 基于一个Dockerfile启动，每次启动都会构建容器
                 ports:
                         - "8000:8000"
+                        - "8001:8001"
                 expose:
                         - "8000"
                 volumes:
