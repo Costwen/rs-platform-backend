@@ -14,6 +14,7 @@ class Inference(models.Model):
     upload_time = models.DateTimeField(auto_now_add=True)
     name = models.CharField(verbose_name="image name", default="", max_length=25)
     raw = models.ImageField(verbose_name="raw image", default="", upload_to="raw")
+    raw_2 = models.ImageField(verbose_name="raw image for contrast", blank=True, upload_to="raw_2")
     result = models.FileField(verbose_name="prediction result", upload_to="result")
     task = models.CharField(max_length=10,verbose_name="task type")
     # 以npy格式存储mask结果，以json存储检测结果

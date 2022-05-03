@@ -11,9 +11,7 @@ from image_process.models import *
 from django.shortcuts import get_object_or_404
 
 
-@api_view(["POST"])
-# @login_required(redirect_field_name = "next",login_url=None)
-@permission_required("image_process.view_inference",raise_exception=True)
+
 def retrieval(request):
     print(request.META["REMOTE_ADDR"])
     if request.data["source"] == "upload":
@@ -46,41 +44,92 @@ def retrieval(request):
 # TODO:编写图片的Storage类，保存路径信息需要隐藏，文件重命名需要解决
 
 
-@api_view(["POST"])
 def sort(request):
-    print(request.META["REMOTE_ADDR"])
-    img_file = request.FILES["img"]
-    s = PIL.Image.open(img_file)  # 图片大小检查在前端完成,
-    # TODO：为方便测试，这里暂不要求登录
-    if isinstance(request.user, AnonymousUser):
-        new_inference = Inference(user_id=get_user_model().objects.get(pk=1), raw=img_file)
-        # img_file.save()
-    else:
-        new_inference = Inference(user_id=request.user, raw=img_file)
-        # img_file.save()
-    new_inference.save()
-    # img_file.save()
-    # result_img,result_stat = P.retrieval_predict(s)
-    # result_img.show()
-    return JsonResponse({
-        "code": status.HTTP_200_OK,
-        "raw_image_url": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + new_inference.raw.name,
-        # "stats":list(result_stat)
-    })
+    pass
+    # return JsonResponse({
+    #     "code": status.HTTP_200_OK,
+    #     "raw_image_url": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + new_inference.raw.name,
+    #     # "stats":list(result_stat)
+    # })
 
 
-@api_view(["POST"])
 def detection(request):
     return JsonResponse({
         "code": status.HTTP_200_OK
     })
 
 
-@api_view(["POST"])
 def contrast(request):
     return JsonResponse({
         "code": status.HTTP_200_OK
     })
+
+
+@api_view(["PUT"])
+def new_task(requset):
+    pass
+
+
+# @login_required(redirect_field_name= "get_one_history",login_url=None)
+@api_view(["GET"])
+def get_specific_history(request):
+    return JsonResponse({
+        "code" : status.HTTP_200_OK
+    })
+
+
+# @login_required(redirect_field_name= "get_all_history",login_url=None)
+@api_view(["GET"])
+def get_all_history(request):
+    user = request.user
+    page_length = request.data["length"]
+    inferences = user.inference_set.all()
+    results = []
+    for inference in inferences:
+        results.append({
+            "raw_image_url": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + inference.raw.name,
+            "upload_time": inference.upload_time,
+            "task": inference.task,
+            "name": inference.name,
+            "id": inference.pk
+        })
+    return JsonResponse({
+        "code": status.HTTP_200_OK,
+        "results": results
+    })
+
+
+@api_view(["PUT"])
+def create_new_task(request):
+    if request.data["mode"] == "openlayer":
+        coordinate = request.data["coordinate"]
+        x1 = eval(coordinate["tl"][0])
+        y1 = eval(coordinate["tl"][1])
+        x2 = eval(coordinate["br"][0])
+        y2 = eval(coordinate["br"][1])
+        img_a = MapImageHelper.getImage(x1, y1, x2, y2)
+    else:
+        img_tmp = request.data["imageA"]
+        img_a = PIL.Image.open(img_tmp)
+    if request.data['type'] == "retrieval":
+        pass
+    elif request.data["type"] == "sort":
+        pass
+    elif request.data["type"] == "contrast":
+        pass
+    elif request.data["type"] == "detection":
+        pass
+    img_a.save("./media/1.jpg")
+    return JsonResponse({
+        "code":status.HTTP_200_OK,
+        "raw_image_url": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/"+"1.jpg"
+    })
+
+
+@login_required(redirect_field_name= "change_task_info",login_url=None)
+@api_view(["POST","DEL"])
+def change_task_info(request):
+    pass
 
 
 @login_required()
