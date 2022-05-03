@@ -23,12 +23,12 @@ class Predictor:
         # self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
         # self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
         # self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
-
+        #
         # self.retrieval_config = paddle_infer.Config(config.retrieval_model_path, config.retrieval_param_path)
         # if config.enable_gpu:
         #     self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
         # self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
-
+        #
         # self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
         # self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
 
@@ -74,7 +74,7 @@ class Predictor:
         result = cv2.morphologyEx(image,cv2.MORPH_CLOSE,kernel)
         return result
 
-    def contrast_predict(self, np_img):
+    def contrast_predict(self, np_img,target_image):
         pass
 
     def sort_predict(self, np_img):

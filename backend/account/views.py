@@ -20,8 +20,7 @@ def login_view(request):
     user = authenticate(request,email = email,password = password)
     user.get_user_permissions()
     if user is not None:
-        login(request, user)
-        # TODO: do something, may be redirecting to original view?
+        login(request, user)  # TODO: 这里可能需要重定向？？
         return JsonResponse({
             "code":status.HTTP_200_OK,
             "msg":"login successfully"
@@ -54,30 +53,5 @@ def register_view(request):
             "code":status.HTTP_406_NOT_ACCEPTABLE,
             "msg":"exist duplicate username or email"
         })
-
-
-# TODO:缩略图的传输..
-@login_required
-def view_workspace(request):
-    user = request.user
-    page_length = request.data["length"]
-    inferences = user.inference_set.all()
-    results = []
-    for inference in inferences:
-        results.append({
-            "raw_image_url":request.scheme+"://"+request.META["HTTP_HOST"]+"/images/"+inference.raw.name,
-            "upload_time":inference.upload_time,
-            "task":inference.task,
-            "name":inference.name,
-            "id":inference.pk
-        })
-    return JsonResponse({
-        "code":status.HTTP_200_OK,
-        "results":results
-    })
-
-@api_view(["POST"])
-def try_to_redirect(request):
-    return redirect("workspace_view")
 
 
