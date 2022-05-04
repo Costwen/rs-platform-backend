@@ -113,11 +113,11 @@ def create_new_task(request):
     create_time = time.time()
     if request.data['type'] == "retrieval":
         result_image, ratio = P.retrieval_predict(img_a)
-        result_image.save("./media/1.jpg")
+        result_image.save("./media/1.png")
         interval_time = time.time()-create_time
         return JsonResponse({
             "code": status.HTTP_200_OK,
-            "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.jpg",
+            "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.png",
             "result": [{
                 "name": request.data["retrieval_type"],
                 "ratio": ratio
@@ -126,11 +126,11 @@ def create_new_task(request):
         })
     elif request.data["type"] == "sort":
         result_image, mask_bincount = P.sort_predict(img_a)
-        result_image.save("./media/1.jpg")
+        result_image.save("./media/1.png")
         interval_time = time.time() - create_time
         return JsonResponse({
             "code": status.HTTP_200_OK,
-            "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.jpg",
+            "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.png",
             "result": [{
                 "name": i,
                 "ratio": mask_bincount[i]
