@@ -4,7 +4,7 @@ author:Bird Christopher
 date:2022//04//03
 """
 
-# import paddle.inference as paddle_infer
+import paddle.inference as paddle_infer
 import PIL
 import time
 import numpy as np
@@ -21,13 +21,13 @@ class Predictor:
         self.config = config
         # self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
         # self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
-        # self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
-        # self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
-        #
-        # self.retrieval_config = paddle_infer.Config(config.retrieval_model_path, config.retrieval_param_path)
-        # if config.enable_gpu:
-        #     self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
-        # self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
+        self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
+        self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
+
+        self.retrieval_config = paddle_infer.Config(config.retrieval_model_path, config.retrieval_param_path)
+        if config.enable_gpu:
+            self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
+        self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
         #
         # self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
         # self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
@@ -77,16 +77,10 @@ class Predictor:
     def contrast_predict(self, np_img,target_image):
         pass
 
-    def sort_predict(self, np_img):
-        pass
-
-    def detection_predict(self, np_img):
-        pass
-
-    def retrieval_predict(self, file):
+    def sort_predict(self, file):
         input_names = self.retrieval_predictor.get_input_names()
         input_handle = self.retrieval_predictor.get_input_handle(input_names[0])
-        input_data = np.array(file.resize([1024,1024])).astype("float32")
+        input_data = np.array(file).astype("float32")
         input_data = self._normalize(input_data)
         input = input_data.transpose([2, 0, 1])
         input = input[np.newaxis, :, :, :]
@@ -95,19 +89,36 @@ class Predictor:
         # 运行predictor
         start = time.time()
         self.retrieval_predictor.run()
-        print("run for "+str(time.time()-start))
         # 获取输出
         output_names = self.retrieval_predictor.get_output_names()
         output_handle = self.retrieval_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze().astype("uint8")
-        print(output_data.shape)
-        print(output.shape)
-        # print(np.bincount(output).shape)
-        stats = zip(self.config.retrieval_category, np.bincount(output.reshape(-1))[:len(self.config.retrieval_category)])
         output_img = self._get_pseudo_color_map(output)
-        output_img.save("output.png")
-        return output_img,stats
+        return output_img, np.bincount(output.reshape(-1))[:len(self.config.retrieval_category)]
+
+    def detection_predict(self, file):
+        pass
+
+    def retrieval_predict(self, file):
+        input_names = self.retrieval_predictor.get_input_names()
+        input_handle = self.retrieval_predictor.get_input_handle(input_names[0])
+        # input_data = np.array(file.resize([1024,1024])).astype("float32")
+        input_data = np.array(file).astype("float32")
+        input_data = self._normalize(input_data)
+        input = input_data.transpose([2, 0, 1])
+        input = input[np.newaxis, :, :, :]
+        input_handle.reshape([1, input.shape[0], input.shape[1], input.shape[2]])  # 这里不对输入tensor作任何处理
+        input_handle.copy_from_cpu(input)
+        # 运行predictor
+        self.retrieval_predictor.run()
+        # 获取输出
+        output_names = self.retrieval_predictor.get_output_names()
+        output_handle = self.retrieval_predictor.get_output_handle(output_names[0])
+        output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
+        output = output_data.squeeze().astype("uint8")
+        output_img = self._get_pseudo_color_map(output)
+        return output_img,np.bincount(output.reshape(-1))[1]
 
 
 def toRad(value):

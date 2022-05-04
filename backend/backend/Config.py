@@ -4,11 +4,11 @@ author:Bird Christopher
 date:2022//04//03
 """
 class Config:
-    retrieval_model_path = "params/model.pdmodel"
-    retrieval_param_path = "params/model.pdiparams"
+    retrieval_model_path = "params/deploy_road_r/model.pdmodel"
+    retrieval_param_path = "params/deploy_road_r/model.pdiparams"
 
-    detection_model_path = "params/retrieval.pdmodel"
-    detection_param_path = "params/retrieval.pdiparams"
+    detection_model_path = "params/deploy_sort/model.pdmodel"
+    detection_param_path = "params/deploy_sort/model.pdiparams"
 
     sort_model_path = "params/retrieval.pdmodel"
     sort_param_path = "params/retrieval.pdiparams"
@@ -16,6 +16,6 @@ class Config:
     constrast_model_path = "params/retrieval.pdmodel"
     constrast_param_path = "params/retrieval.pdiparams"
 
-    retrieval_category = ["Bare soil","Building","Pavement","Road","Vegetation","Water"]
+    sort_category = ["Bare soil","Building","Pavement","Road","Vegetation","Water"]
 
     enable_gpu = False
