@@ -78,6 +78,7 @@ def get_specific_history(request):
     })
 
 
+# todo：缩略图！
 # @login_required(redirect_field_name= "get_all_history",login_url=None)
 @api_view(["GET"])
 def get_all_history(request):

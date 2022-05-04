@@ -128,9 +128,9 @@ class MapImageHelper:
                 image = Image.open(BytesIO(data)).convert('RGB')
                 im = np.array(image)
                 im_list.append(im)
-        im_list = np.array(im_list).reshape([4, 4, 256, 256, 3])
+        im_list = np.array(im_list).reshape([x2-x1+1, y2-y1+1, 256, 256, 3])
         im_list = np.transpose(im_list, [1, 2, 0, 3, 4])
-        im_list = im_list.reshape([1024, 1024, 3])
+        im_list = im_list.reshape([256*(x2-x1+1), 256*(y2-y1+1), 3])
         # TODO crop here!
         im = Image.fromarray(im_list)
         return im
