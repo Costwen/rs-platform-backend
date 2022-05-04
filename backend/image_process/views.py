@@ -134,7 +134,7 @@ def create_new_task(request):
             "result": [{
                 "name": Config.sort_category[i],
                 "ratio": mask_bincount.item(i)
-            } for i in range(0,len(Config.sort_category))],
+            } for i in range(0, len(Config.sort_category))],
             "inference_time": str(interval_time)+"s"
         })
     elif request.data["type"] == "contrast":
