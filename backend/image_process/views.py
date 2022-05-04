@@ -1,7 +1,9 @@
+import time
+
 from django.http import request,JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
-# from backend.settings import predictor as P
+from backend.settings import predictor as P
 from backend.util import MapImageHelper
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
@@ -9,6 +11,7 @@ from django.contrib.auth.decorators import login_required,permission_required
 import PIL
 from image_process.models import *
 from django.shortcuts import get_object_or_404
+from backend.Config import Config
 
 
 
@@ -95,6 +98,7 @@ def get_all_history(request):
     })
 
 
+# TODO： account not done
 @api_view(["PUT"])
 def create_new_task(request):
     if request.data["mode"] == "openlayer":
@@ -106,20 +110,39 @@ def create_new_task(request):
     else:
         img_tmp = request.data["imageA"]
         img_a = PIL.Image.open(img_tmp)
-    # TODO: 填写具体要干什么
+    create_time = time.time()
     if request.data['type'] == "retrieval":
-        pass
+        result_image, ratio = P.retrieval_predict(img_a)
+        result_image.save("./media/1.jpg")
+        interval_time = time.time()-create_time
+        return JsonResponse({
+            "code": status.HTTP_200_OK,
+            "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.jpg",
+            "result": [{
+                "name": request.data["retrieval_type"],
+                "ratio": ratio
+            }],
+            "inference_time": interval_time
+        })
     elif request.data["type"] == "sort":
-        pass
+        result_image, mask_bincount = P.sort_predict(img_a)
+        result_image.save("./media/1.jpg")
+        interval_time = time.time() - create_time
+        return JsonResponse({
+            "code": status.HTTP_200_OK,
+            "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.jpg",
+            "result": [{
+                "name": i,
+                "ratio": mask_bincount[i]
+            } for i in Config.sort_category],
+            "inference_time": interval_time
+        })
     elif request.data["type"] == "contrast":
         pass
     elif request.data["type"] == "detection":
         pass
-    img_a.save("./media/1.jpg")
-    return JsonResponse({
-        "code":status.HTTP_200_OK,
-        "raw_image_url": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/"+"1.jpg"
-    })
+
+
 
 
 @login_required(redirect_field_name= "change_task_info",login_url=None)

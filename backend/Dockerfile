@@ -1,4 +1,3 @@
-#FROM registry.baidubce.com/paddlepaddle/paddle:2.2.2
 FROM python:3.6
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.backup
