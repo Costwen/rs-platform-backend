@@ -102,11 +102,10 @@ def get_all_history(request):
 @api_view(["PUT"])
 def create_new_task(request):
     if request.data["mode"] == "openlayer":
-        coordinate = request.data["coordinate"]
-        x1 = eval(coordinate["tl"][0])
-        y1 = eval(coordinate["tl"][1])
-        x2 = eval(coordinate["br"][0])
-        y2 = eval(coordinate["br"][1])
+        x1 = eval(request.data["tl_x"])
+        y1 = eval(request.data["tl_y"])
+        x2 = eval(request.data["br_x"])
+        y2 = eval(request.data["br_y"])
         img_a = MapImageHelper.getImage(x1, y1, x2, y2)
     else:
         img_tmp = request.data["imageA"]
