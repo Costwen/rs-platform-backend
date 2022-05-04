@@ -118,6 +118,7 @@ class MapImageHelper:
     @staticmethod
     def getImage(x1, y1, x2, y2, zoom = 17):
         x1,y1,x2,y2 = MapImageHelper.coordinate_transfer(x1, y1, x2, y2, zoom)
+        print(x1,y1,x2,y2)
         im_list = []
         for i in range(x1,x2+1):
             for j in range(y1,y2+1):
@@ -137,10 +138,10 @@ class MapImageHelper:
 
     @staticmethod
     def coordinate_transfer(x1, y1, x2, y2, zoom=17):
-        xtile_1 = np.floor((x1 + 180) / 360 * (1 << zoom))
-        ytile_1 = np.floor((1 - np.log(np.tan(toRad(y1)) + 1 / np.cos(toRad(y1))) / np.pi) / 2 * (1 << zoom))
+        xtile_1 = np.floor((x1 + 180) / 360 * (1 << zoom)).astype(np.int32).item(0)
+        ytile_1 = np.floor((1 - np.log(np.tan(toRad(y1)) + 1 / np.cos(toRad(y1))) / np.pi) / 2 * (1 << zoom)).astype(np.int32).item(0)
 
-        xtile_2 = np.floor((x2 + 180) / 360 * (1 << zoom))
-        ytile_2 = np.floor((1 - np.log(np.tan(toRad(y2)) + 1 / np.cos(toRad(y2))) / np.pi) / 2 * (1 << zoom))
+        xtile_2 = np.floor((x2 + 180) / 360 * (1 << zoom)).astype(np.int32).item(0)
+        ytile_2 = np.floor((1 - np.log(np.tan(toRad(y2)) + 1 / np.cos(toRad(y2))) / np.pi) / 2 * (1 << zoom)).astype(np.int32).item(0)
         return  xtile_1,ytile_1,xtile_2,ytile_2
 
