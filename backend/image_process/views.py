@@ -65,11 +65,6 @@ def contrast(request):
     })
 
 
-@api_view(["PUT"])
-def new_task(requset):
-    pass
-
-
 # @login_required(redirect_field_name= "get_one_history",login_url=None)
 @api_view(["GET"])
 def get_specific_history(request):
@@ -111,6 +106,7 @@ def create_new_task(request):
     else:
         img_tmp = request.data["imageA"]
         img_a = PIL.Image.open(img_tmp)
+    # TODO: 填写具体要干什么
     if request.data['type'] == "retrieval":
         pass
     elif request.data["type"] == "sort":
