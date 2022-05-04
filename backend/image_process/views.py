@@ -122,7 +122,7 @@ def create_new_task(request):
                 "name": request.data["retrieval_type"],
                 "ratio": ratio
             }],
-            "inference_time": str(interval_time)
+            "inference_time": str(interval_time)+"s"
         })
     elif request.data["type"] == "sort":
         result_image, mask_bincount = P.sort_predict(img_a)
@@ -135,7 +135,7 @@ def create_new_task(request):
                 "name": i,
                 "ratio": mask_bincount[i]
             } for i in Config.sort_category],
-            "inference_time": str(interval_time)
+            "inference_time": str(interval_time)+"s"
         })
     elif request.data["type"] == "contrast":
         pass
