@@ -39,6 +39,7 @@ services:
                         - ./compose/uwsgi/:/tmp
                         - static_vol:/root/backend/static
                         - media_vol:/root/backend/media
+                        - ../backend/params:/root/backend/params
                 networks:
                         - nginx_network
 #                        - db_network
