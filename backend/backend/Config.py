@@ -7,11 +7,11 @@ class Config:
     retrieval_model_path = "params/deploy_road_r/model.pdmodel"
     retrieval_param_path = "params/deploy_road_r/model.pdiparams"
 
-    detection_model_path = "params/deploy_sort/model.pdmodel"
-    detection_param_path = "params/deploy_sort/model.pdiparams"
+    detection_model_path = "params/retrieval.pdmodel"
+    detection_param_path = "params/retrieval.pdiparams"
 
-    sort_model_path = "params/retrieval.pdmodel"
-    sort_param_path = "params/retrieval.pdiparams"
+    sort_model_path = "params/deploy_sort/model.pdmodel"
+    sort_param_path = "params/deploy_sort/model.pdiparams"
 
     constrast_model_path = "params/retrieval.pdmodel"
     constrast_param_path = "params/retrieval.pdiparams"
