@@ -132,9 +132,9 @@ def create_new_task(request):
             "code": status.HTTP_200_OK,
             "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.png",
             "result": [{
-                "name": i,
+                "name": Config.sort_category[i],
                 "ratio": mask_bincount.item(i)
-            } for i in Config.sort_category],
+            } for i in range(0,len(Config.sort_category))],
             "inference_time": str(interval_time)+"s"
         })
     elif request.data["type"] == "contrast":
