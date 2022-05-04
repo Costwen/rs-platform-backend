@@ -141,4 +141,4 @@ MEDIA_ROOT = '/media/'
 
 SESSION_COOKIE_AGE = 360000
 
-#predictor = Predictor(Config)
+predictor = Predictor(Config)
