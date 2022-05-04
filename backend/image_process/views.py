@@ -120,7 +120,7 @@ def create_new_task(request):
             "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.png",
             "result": [{
                 "name": request.data["retrieval_type"],
-                "ratio": ratio
+                "ratio": ratio.item(0)
             }],
             "inference_time": str(interval_time)+"s"
         })
@@ -133,7 +133,7 @@ def create_new_task(request):
             "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.png",
             "result": [{
                 "name": i,
-                "ratio": mask_bincount[i]
+                "ratio": mask_bincount.item(i)
             } for i in Config.sort_category],
             "inference_time": str(interval_time)+"s"
         })
