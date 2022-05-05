@@ -111,13 +111,16 @@ def create_new_task(request):
         img_tmp = request.data["imageA"]
         img_a = PIL.Image.open(img_tmp).convert("RGB")
     create_time = time.time()
+    img_a.save("./media/a.png")
     if request.data['type'] == "retrieval":
         result_image, ratio = P.retrieval_predict(img_a)
         result_image.convert("RGB").save("./media/1.png")
+
         interval_time = time.time()-create_time
         return JsonResponse({
             "code": status.HTTP_200_OK,
             "mask": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "1.png",
+            "image_A": request.scheme + "://" + request.META["HTTP_HOST"] + "/images/" + "a.png",
             "result": [{
                 "name": request.data["retrieval_type"],
                 "ratio": ratio.item(0)
