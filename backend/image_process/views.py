@@ -109,7 +109,7 @@ def create_new_task(request):
         img_a = MapImageHelper.getImage(x1, y1, x2, y2)
     else:
         img_tmp = request.data["imageA"]
-        img_a = PIL.Image.open(img_tmp)
+        img_a = PIL.Image.open(img_tmp).convert("RGB")
     create_time = time.time()
     if request.data['type'] == "retrieval":
         result_image, ratio = P.retrieval_predict(img_a)
