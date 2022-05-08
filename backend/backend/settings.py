@@ -101,6 +101,14 @@ DATABASES = {
     }
 }
 
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -142,3 +150,42 @@ MEDIA_ROOT = '/media/'
 SESSION_COOKIE_AGE = 360000
 
 predictor = Predictor(Config)
+
+# celery相关配置
+# 配置celery时区，默认时UTC。
+timezone = TIME_ZONE
+
+# 任务队列的链接地址 celery配置redis作为broker。redis有16个数据库，编号0~15，这里使用第1个。
+# CELERY_result_backend = 'redis://buaa2022gogogo@101.43.134.156:6379/1'
+
+CELERY_BROKER_URL = 'redis://:buaa2022gogogo@101.43.134.156:6378/0' # Broker配置，使用Redis作为消息中间件
+
+CELERY_RESULT_BACKEND = 'redis://:buaa2022gogogo@101.43.134.156:6378/1' # BACKEND配置，这里使用redis
+
+CELERY_RESULT_EXPIRES = None  # 存储结果过期时间
+
+CELERY_RESULT_SERIALIZER = 'json' # 结果序列化方案
+
+
+
+# 可选参数：给某个任务限流
+# task_annotations = {'tasks.my_task': {'rate_limit': '10/s'}}
+
+# 可选参数：给任务设置超时时间。超时立即中止worker
+# task_time_limit = 10 * 60
+
+# 可选参数：给任务设置软超时时间，超时抛出Exception
+# task_soft_time_limit = 10 * 60
+
+# 可选参数：如果使用django_celery_beat进行定时任务
+# beat_scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
+
+# 更多选项见
+# https://docs.celeryproject.org/en/stable/userguide/configuration.html
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
+}

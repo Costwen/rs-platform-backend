@@ -7,8 +7,6 @@ from django.urls import path
 from image_process.views import *
 
 urlpatterns=[
-    path("new_task/",create_new_task,name="create_task"),
-    path("task/change/<int:id>/", change_task_info, "change_tasks_info"),
-    path("history/",get_specific_history,"get_all_task_history"),
-    path("task/upload/<int:id>/", get_all_history,"get_one_task_history")
+    path("project/", ProjectSetView.as_view(), name="create_project"),
+    path("project/<pk>/", ProjectDetailView.as_view(), name="detail_project"),
 ]

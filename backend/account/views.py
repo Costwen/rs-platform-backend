@@ -9,10 +9,11 @@ from rest_framework.decorators import *
 from account.models import *
 # from account.auth_backend import Email_auth
 import inspect
+
+
 # Create your views here.
 
 
-# TODO: 用Redis存储所有的session
 @api_view(["POST"])
 def login_view(request):
     email = request.data["email"]
