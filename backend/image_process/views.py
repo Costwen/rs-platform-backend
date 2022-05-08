@@ -109,7 +109,7 @@ class ProjectDetailView(APIView):
             "create_time": project.create_time,
         }
         return Response(
-            data={"message":"获取成功","project":data},
+            data={"message":"获取成功","projects":data},
             status=status.HTTP_200_OK
         )
 
