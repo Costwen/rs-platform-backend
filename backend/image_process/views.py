@@ -77,7 +77,7 @@ class ProjectSetView(APIView):
                 "create_time": project.create_time,
             })
         return Response(
-            data={"message":"获取成功","results":results},
+            data={"message":"获取成功","projects":results},
             status=status.HTTP_200_OK
         )
     @login_required
@@ -109,7 +109,7 @@ class ProjectDetailView(APIView):
             "create_time": project.create_time,
         }
         return Response(
-            data={"message":"获取成功","projects":data},
+            data={"message":"获取成功","project":data},
             status=status.HTTP_200_OK
         )
 
