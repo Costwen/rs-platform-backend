@@ -1,32 +1,64 @@
+from email.policy import default
 from django.db import models
+from matplotlib import projections
 from backend import settings
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
+import uuid
 
 
-class Inference(models.Model):
-    user_id = models.ForeignKey(
+def uuid_str():
+    return str(uuid.uuid4())
+
+class Project(models.Model):
+    user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        related_name="user",
-        verbose_name="user that possess the image",
+        related_name="project_user",
+        verbose_name="user that own the project",
         on_delete=models.CASCADE
     )
-    upload_time = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(verbose_name="image name", default="", max_length=25)
-    raw = models.ImageField(verbose_name="raw image", default="", upload_to="raw")
-    raw_2 = models.ImageField(verbose_name="raw image for contrast", blank=True, upload_to="raw_2")
-    result = models.FileField(verbose_name="prediction result", upload_to="result")
-    task = models.CharField(max_length=10,verbose_name="task type")
-    # 以npy格式存储mask结果，以json存储检测结果
+    name = models.CharField(verbose_name="project name", max_length=25)
+    id = models.UUIDField(verbose_name="project id", primary_key=True, default=uuid_str(), editable=False)
+    imageA = models.URLField(verbose_name="imageA url", default="", max_length=1024, blank=True)
+    imageB = models.URLField(verbose_name="imageB url", default="", max_length=1024, blank=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(verbose_name="project type", max_length=100, default="")
 
+
+class Task(models.Model):
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        related_name="task_user",
+        verbose_name="user that own the task",
+        on_delete=models.CASCADE
+    )
+    project = models.ForeignKey(
+        to=Project,
+        related_name="project",
+        verbose_name="project that the task belongs to",
+        on_delete=models.CASCADE
+    )
+    id = models.UUIDField(verbose_name="task id", primary_key=True, default=uuid_str(), editable=False)
+    status = models.CharField(verbose_name="task status", max_length=10, default="pending")
+    create_time = models.DateTimeField(auto_now_add=True)
+    mask = models.URLField(verbose_name="mask url", default="", max_length=1024, blank=True)
+    imageA = models.URLField(verbose_name="imageA url", default="", max_length=1024, blank=True)
+    imageB = models.URLField(verbose_name="imageB url", default="", max_length=1024, blank=True)
+    coordinate = models.JSONField(verbose_name="coordinate result", default=dict)
+    analysis = models.JSONField(verbose_name="analysis result", default=dict)
     def __str__(self):
-        return "a normal inference result"
+        return "a task"
 
-    class Meta:
-        verbose_name = "Users' image that has been processed"
-        indexes = [
-            models.Index(fields=["user_id","upload_time"],name="inference_index")
-        ]
-
-
-
+class Image(models.Model):
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        related_name="image_user",
+        verbose_name="user that own the image",
+        on_delete=models.CASCADE
+    )
+    id = models.UUIDField(verbose_name="image id", primary_key=True, default=uuid_str(), editable=False)
+    url = models.URLField(verbose_name="image url", default="", max_length=1024)
+    name = models.CharField(verbose_name="image name", default="", max_length=100)
+    create_time = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return "a image"
