@@ -89,7 +89,7 @@ class ProjectSetView(APIView):
         type = request.data.get("type","")
         project = Project.objects.create(user = user,name = name,type = type, imageA = imageA, imageB = imageB)
         return Response(
-            data={"message":"创建成功","project_id":project.pk},
+            data={"message":"创建成功","id":project.pk},
             status=status.HTTP_200_OK
         )
 
