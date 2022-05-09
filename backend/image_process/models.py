@@ -44,7 +44,7 @@ class Task(models.Model):
     mask = models.URLField(verbose_name="mask url", default="", max_length=1024, blank=True)
     imageA = models.URLField(verbose_name="imageA url", default="", max_length=1024, blank=True)
     imageB = models.URLField(verbose_name="imageB url", default="", max_length=1024, blank=True)
-    coordinate = models.JSONField(verbose_name="coordinate result", default=dict)
+    coordinate = models.JSONField(verbose_name="coordinate result", default=dict, blank=True)
     analysis = models.JSONField(verbose_name="analysis result", default=dict)
     def __str__(self):
         return "a task"
