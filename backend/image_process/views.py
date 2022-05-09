@@ -49,6 +49,7 @@ from rest_framework.views import APIView
 #     result = get_object_or_404(Inference,user = user,pk = request.GET["id"])
 #     return JsonResponse
 
+# 验证登录
 def login_required(func):
     def wrapper(self, request,*args,**kwargs):
         if isinstance(request.user,AnonymousUser):
@@ -60,6 +61,7 @@ def login_required(func):
     return wrapper
 
 
+# 任务类
 class TaskSetView(APIView):
     http_method_names = ["get", "put"]
 
@@ -93,7 +95,39 @@ class TaskSetView(APIView):
             status=status.HTTP_200_OK
         )
 
+# 任务详情类
+class TaskDetailView(APIView):
+    http_method_names = ["get", "delete"]
 
+    @login_required
+    def get(self,request, pk):
+        user = request.user
+        task = get_object_or_404(Task,user = user,pk = pk)
+        return Response(
+            data={"message":"获取成功","data":{
+                "id":task.pk,
+                "project_id":task.project_id,
+                "coordinate":task.coordinate,
+                "status":task.status,
+                "mask":task.mask,
+                "create_time":task.create_time,
+            }},
+            status=status.HTTP_200_OK
+        )
+
+    @login_required
+    def delete(self,request, pk):
+        user = request.user
+        task = get_object_or_404(Task,user = user,pk = pk)
+        task.delete()
+        return Response(
+            data={"message":"删除成功"},
+            status=status.HTTP_200_OK
+        )
+
+
+
+# 项目类
 class ProjectSetView(APIView):
     # 限制请求方式
     http_method_names = ["get", "put"]
@@ -130,6 +164,8 @@ class ProjectSetView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+# 项目详情类
 class ProjectDetailView(APIView):
     # 限制请求方式
     http_method_names = ["get", "post", "delete"]
