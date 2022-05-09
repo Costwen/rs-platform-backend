@@ -1,7 +1,9 @@
+import http
 from statistics import mode
 import time
 
 from matplotlib import image
+from psutil import users
 from requests import delete
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -20,32 +22,32 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-# TODO： account not done
-@api_view(["PUT"])
-def create_new_task(request):
-    project_id = request.data.get("project_id", None)
-    user_id = request.user.pk
-    coordinate = request.data.get("coordinate",None)
-    task = image_handler.delay(project_id, user_id, coordinate)
-    Task.objects.create(task_id=task.id, user_id=user_id, project_id=project_id, coordinate=coordinate)
-    return Response(
-        data={
-            "message": "创建成功",
-            "task_id": task.id},
-        status=status.HTTP_200_OK
-    )
+# # TODO： account not done
+# @api_view(["PUT"])
+# def create_new_task(request):
+#     project_id = request.data.get("project_id", None)
+#     user_id = request.user.pk
+#     coordinate = request.data.get("coordinate",None)
+#     task = image_handler.delay(project_id, user_id, coordinate)
+#     Task.objects.create(task_id=task.id, user=user, project=project, coordinate=coordinate)
+#     return Response(
+#         data={
+#             "message": "创建成功",
+#             "task_id": task.id},
+#         status=status.HTTP_200_OK
+#     )
 
 
-@api_view(["POST","DEL"])
-def change_task_info(request):
-    pass
+# @api_view(["POST","DEL"])
+# def change_task_info(request):
+#     pass
 
 
-@api_view(["GET"])
-def result_detail(request):
-    user = request.user
-    result = get_object_or_404(Inference,user = user,pk = request.GET["id"])
-    return JsonResponse
+# @api_view(["GET"])
+# def result_detail(request):
+#     user = request.user
+#     result = get_object_or_404(Inference,user = user,pk = request.GET["id"])
+#     return JsonResponse
 
 def login_required(func):
     def wrapper(self, request,*args,**kwargs):
@@ -56,6 +58,40 @@ def login_required(func):
             )
         return func(self, request,*args,**kwargs)
     return wrapper
+
+
+class TaskSetView(APIView):
+    http_method_names = ["get", "put"]
+
+    @login_required
+    def put(self,request):
+        user = request.user
+        project_id = request.data.get("project_id", None)
+        coordinate = request.data.get("coordinate",None)
+        task = Task.objects.create(user=user, project_id=project_id, coordinate=coordinate)
+        return Response(
+            data={"message":"创建成功","id":task.pk},
+            status=status.HTTP_200_OK
+        )
+    
+    @login_required
+    def get(self,request):
+        user = request.user
+        tasks = Task.objects.filter(user=user)
+        data = []
+        for task in tasks:
+            data.append({
+                "id":task.pk,
+                "project_id":task.project_id,
+                "coordinate":task.coordinate,
+                "status":task.status,
+                "mask":task.mask,
+                "create_time":task.create_time,
+            })
+        return Response(
+            data={"message":"获取成功","data":data},
+            status=status.HTTP_200_OK
+        )
 
 
 class ProjectSetView(APIView):
@@ -80,6 +116,7 @@ class ProjectSetView(APIView):
             data={"message":"获取成功","projects":results},
             status=status.HTTP_200_OK
         )
+
     @login_required
     def put(self,request):
         user = request.user
