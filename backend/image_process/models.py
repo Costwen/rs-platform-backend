@@ -21,8 +21,8 @@ class Project(models.Model):
     id = models.UUIDField(verbose_name="project id", primary_key=True, default=uuid_str(), editable=False)
     imageA = models.URLField(verbose_name="imageA url", default="", max_length=1024, blank=True)
     imageB = models.URLField(verbose_name="imageB url", default="", max_length=1024, blank=True)
-    create_time = models.DateTimeField(auto_now_add=True)
-    modify_time = models.DateTimeField(auto_now=True)
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name="create time")
+    modify_time = models.DateTimeField(auto_now=True, verbose_name="modify time")
     type = models.CharField(verbose_name="project type", max_length=100, default="")
     
 

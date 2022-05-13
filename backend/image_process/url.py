@@ -6,6 +6,8 @@ date:2022//04//03
 from django.urls import path
 from image_process.views import *
 
+app_name = 'image_process'
+
 urlpatterns=[
     path("project/", ProjectSetView.as_view(), name="create_project"),
     path("project/<pk>/", ProjectDetailView.as_view(), name="detail_project"),
