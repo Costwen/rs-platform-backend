@@ -1,8 +1,3 @@
-import http
-from msilib.schema import tables
-from statistics import mode
-import time
-
 from matplotlib import image
 from psutil import users
 from requests import delete
@@ -135,20 +130,29 @@ class ProjectSetView(APIView):
 
     @login_required
     def get(self,request):
+        param = request.query_params
+        _status = param.get("status",None)
         user = request.user
         projects = Project.objects.filter(user = user)
+        if _status:
+            projects = projects.filter(status = _status)
         results = []
         for project in projects:
             tasks = Task.objects.filter(user = user, project_id = project.pk)
             task_num = tasks.count()
+            # 格式化时间
+            create_time = project.create_time.strftime("%Y-%m-%d %H:%M:%S")
+            modify_time = project.modify_time.strftime("%Y-%m-%d %H:%M:%S")
             results.append({
                 "name": project.name,
                 "type": project.type,
                 "imageA": project.imageA,
                 "imageB": project.imageB,
                 "id": project.pk,
-                "create_time": project.create_time,
+                "create_time": create_time,
+                "modify_time": modify_time,
                 "task_num": task_num,
+                "status": project.status,
             })
         return Response(
             data={"message":"获取成功","projects":results},
@@ -214,7 +218,12 @@ class ProjectDetailView(APIView):
     @login_required
     def post(self,request, pk):
         user = request.user
-        project = get_object_or_404(Project,user = user,pk = pk)
+        project = Project.objects.filter(pk=pk)
+        if len(project) == 0:
+            return Response(
+                data={"message":"项目不存在"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         project.update(**request.data)
         return Response(
             data={"message":"更新成功"},
