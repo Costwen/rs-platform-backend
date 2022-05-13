@@ -23,6 +23,7 @@ class Project(models.Model):
     imageB = models.URLField(verbose_name="imageB url", default="", max_length=1024, blank=True)
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="create time")
     modify_time = models.DateTimeField(auto_now=True, verbose_name="modify time")
+    status = models.CharField(verbose_name="project status", max_length=1024, default="normal")  # normal, deleted
     type = models.CharField(verbose_name="project type", max_length=100, default="")
     
 
