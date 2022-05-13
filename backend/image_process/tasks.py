@@ -21,12 +21,14 @@ def detection(task):
 def contrast(task):
     pass
 
+
 handle_func = {
     "retrieval":retrieval,
     "sort":sort,
     "detection":detection,
     "contrast":contrast
 }
+
 
 @celery_app.task(bind=True)
 def image_handler(self, project_id, user_id, coordinate):
