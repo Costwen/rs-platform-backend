@@ -18,6 +18,7 @@ from image_process.tasks import image_handler
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import demjson
 
 
 # TODO： account not done
@@ -47,6 +48,7 @@ def result_detail(request):
     result = get_object_or_404(Inference,user = user,pk = request.GET["id"])
     return JsonResponse
 
+# 跳转到登录界面更好
 def login_required(func):
     def wrapper(self, request,*args,**kwargs):
         if isinstance(request.user,AnonymousUser):
@@ -80,6 +82,7 @@ class ProjectSetView(APIView):
             data={"message":"获取成功","projects":results},
             status=status.HTTP_200_OK
         )
+
     @login_required
     def put(self,request):
         user = request.user
@@ -131,3 +134,95 @@ class ProjectDetailView(APIView):
             data={"message":"更新成功"},
             status=status.HTTP_200_OK
         )
+
+# TODO:Encrypt
+def filename_generate(name, user, suffix):
+    return name+"_"+user.pk+"_"+time.strftime("%Y-%m-%d %X", time.localtime())+suffix
+
+
+class ImageUploadView(APIView):
+
+    http_method_names = ["post","get","put"]
+    # 用户上传图片 from 高德
+    @login_required
+    def post(self, request):
+        coordinate = demjson.decode(request.data["coordinate"])
+        target_img = MapImageHelper.getImage(coordinate["tl"][0],coordinate["tl"][1],coordinate["br"][0],coordinate["br"][1])
+        filename = filename_generate(request.data["name"],request.user,".jpg")
+        target_img.save("/media/"+filename)
+        new_record = Image(user = request.user,url="/images/"+filename,name=request.data["name"])
+        new_record.save()
+        return JsonResponse({
+            "code":status.HTTP_200_OK,
+            "url":request.scheme+"://"+request.META["HTTP_HOST"]+new_record.url,
+            "id":new_record.pk,
+            "create_time":new_record.create_time,
+            "name":new_record.name
+        })
+
+    # 用户获得自己的所有图片
+    @login_required
+    def get(self, request):
+        Image_set = request.user.image_set()
+        result = []
+        for img in Image_set:
+            result.append({
+                "name":img.name,
+                "url":request.scheme+"://"+request.META["HTTP_HOST"]+img.url,
+                "id":img.pk,
+                "create_time":img.create_time
+            })
+        return JsonResponse({
+            "code":status.HTTP_200_OK,
+            "msg":"done"
+        })
+
+    # 用户上传自定义图片
+    @login_required
+    def put(self, request):
+        file = request.data["file"]
+        target_img = PIL.Image.open(file)
+        filename = filename_generate(request.data["name"], request.user, ".jpg")
+        target_img.save("/media/" + filename)
+        new_record = Image(user=request.user, url="/images/" + filename, name=request.data["name"])
+        new_record.save()
+        return JsonResponse({
+            "code": status.HTTP_200_OK,
+            "url": request.scheme + "://" + request.META["HTTP_HOST"] + new_record.url,
+            "id": new_record.pk,
+            "create_time": new_record.create_time,
+            "name": new_record.name
+        })
+
+
+class ImageManagementView(APIView):
+    http_method_names = ["post","get","delete"]
+    @login_required
+    def post(self, request, pk):
+        image = get_object_or_404(Image, pk=pk)
+        image.name = request.name
+        image.save()
+        return JsonResponse({
+            "code": status.HTTP_200_OK,
+            "msg": "done"
+        })
+
+    @login_required
+    def put(self, request, pk):
+        record = get_object_or_404(Image,pk=pk)
+        return JsonResponse({
+            "code": status.HTTP_200_OK,
+            "url": request.scheme + "://" + request.META["HTTP_HOST"] + record.url,
+            "id": record.pk,
+            "create_time": record.create_time,
+            "name": record.name
+        })
+
+    @login_required
+    def delete(self, request, pk):
+        record = get_object_or_404(Image, pk=pk)
+        record.delete()
+        return JsonResponse({
+            "code": status.HTTP_200_OK,
+            "msg": "done"
+        })
