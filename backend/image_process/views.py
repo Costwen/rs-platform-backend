@@ -1,4 +1,5 @@
 import http
+from msilib.schema import tables
 from statistics import mode
 import time
 
@@ -138,6 +139,8 @@ class ProjectSetView(APIView):
         projects = Project.objects.filter(user = user)
         results = []
         for project in projects:
+            tasks = Task.objects.filter(user = user, project_id = project.pk)
+            task_num = tasks.count()
             results.append({
                 "name": project.name,
                 "type": project.type,
@@ -145,6 +148,7 @@ class ProjectSetView(APIView):
                 "imageB": project.imageB,
                 "id": project.pk,
                 "create_time": project.create_time,
+                "task_num": task_num,
             })
         return Response(
             data={"message":"获取成功","projects":results},
@@ -173,6 +177,17 @@ class ProjectDetailView(APIView):
     def get(self,request, pk):
         user = request.user
         project = get_object_or_404(Project,user = user,pk = pk)
+        tasklist = Task.objects.filter(project_id = project.pk)
+        tasks = []
+        for task in tasklist:
+            tasks.append({
+                "id":task.pk,
+                "project_id":task.project_id,
+                "coordinate":task.coordinate,
+                "status":task.status,
+                "mask":task.mask,
+                "create_time":task.create_time,
+            })
         data = {
             "name": project.name,
             "type": project.type,
@@ -180,6 +195,7 @@ class ProjectDetailView(APIView):
             "imageB": project.imageB,
             "id": project.pk,
             "create_time": project.create_time,
+            "tasks": tasks,     
         }
         return Response(
             data={"message":"获取成功","project":data},
