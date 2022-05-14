@@ -13,4 +13,6 @@ urlpatterns=[
     path("project/<pk>/", ProjectDetailView.as_view(), name="detail_project"),
     path("task/", TaskSetView.as_view(), name="create_task"),
     path("task/<pk>/", TaskDetailView.as_view(), name="detail_task"),
+    path("image/", ImageUploadView.as_view(), name="image_upload"),
+    path("image/<int:pk>/", ImageManagementView.as_view(), name="image_management")
 ]
