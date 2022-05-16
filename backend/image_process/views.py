@@ -1,8 +1,10 @@
+import ast
+from hashlib import new
+import json
 from matplotlib import image
-from psutil import users
-from requests import delete
 from rest_framework import status
 from rest_framework.decorators import api_view
+from sympy import re
 from backend.settings import predictor as P
 from backend.util import MapImageHelper
 from django.contrib.auth.models import AnonymousUser
@@ -232,10 +234,6 @@ class ProjectDetailView(APIView):
             status=status.HTTP_200_OK
         )
 
-# TODO:Encrypt
-def filename_generate(name, user, suffix):
-    return name+"_"+user.pk+"_"+time.strftime("%Y-%m-%d %X", time.localtime())+suffix
-
 
 class ImageUploadView(APIView):
 
@@ -243,11 +241,15 @@ class ImageUploadView(APIView):
     # 用户上传图片 from 高德
     @login_required
     def post(self, request):
-        coordinate = demjson.decode(request.data["coordinate"])
-        target_img = MapImageHelper.getImage(coordinate["tl"][0],coordinate["tl"][1],coordinate["br"][0],coordinate["br"][1])
-        filename = filename_generate(request.data["name"],request.user,".jpg")
-        target_img.save("/media/"+filename)
-        new_record = Image(user = request.user,url="/images/"+filename,name=request.data["name"])
+        coordinate = request.data["coordinate"]
+        name = request.data.get("name","Untitled")
+        #  convert coordinate to json
+        new_record = Image(user = request.user, name=name, type = "map")
+        coordinate = json.loads(coordinate)
+        target_img = MapImageHelper.getImage(coordinate["tl"][0],coordinate["br"][1],coordinate["br"][0],coordinate["tl"][1])
+        filename = new_record.id + ".png"
+        target_img.save("./media/"+filename)
+        new_record.url = "/images/" + filename
         new_record.save()
         return Response(
             status=status.HTTP_200_OK,
@@ -262,14 +264,15 @@ class ImageUploadView(APIView):
     # 用户获得自己的所有图片
     @login_required
     def get(self, request):
-        Image_set = request.user.image_set()
+        images = Image.objects.filter(user = request.user)
         result = []
-        for img in Image_set:
+        for img in images:
+            create_time = img.create_time.strftime("%Y-%m-%d %H:%M:%S")
             result.append({
                 "name":img.name,
                 "url":request.scheme+"://"+request.META["HTTP_HOST"]+img.url,
                 "id":img.pk,
-                "create_time":img.create_time
+                "create_time":create_time,
             })
         return Response(
             status=status.HTTP_200_OK,
@@ -281,16 +284,17 @@ class ImageUploadView(APIView):
     def put(self, request):
         file = request.data["file"]
         target_img = PIL.Image.open(file)
-        filename = filename_generate(request.data["name"], request.user, ".jpg")
-        target_img.save("/media/" + filename)
-        new_record = Image(user=request.user, url="/images/" + filename, name=request.data["name"])
+        new_record = Image(user=request.user, name=request.data["name"], type="custom")
+        filename = new_record.id + ".png"
+        target_img.save("./media/"+filename)
         new_record.save()
+        create_time = new_record.create_time.strftime("%Y-%m-%d %H:%M:%S")
         return Response(
             status=status.HTTP_200_OK,
             data={
                 "url":request.scheme+"://"+request.META["HTTP_HOST"]+new_record.url,
                 "id" :new_record.pk,
-                "create_time":new_record.create_time,
+                "create_time": create_time,
                 "name": new_record.name
             }
         )

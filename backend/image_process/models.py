@@ -8,7 +8,8 @@ import uuid
 
 
 def uuid_str():
-    return str(uuid.uuid4())
+    id = uuid.uuid4()
+    return str(id)
 
 class Project(models.Model):
     user = models.ForeignKey(
@@ -18,7 +19,7 @@ class Project(models.Model):
         on_delete=models.CASCADE
     )
     name = models.CharField(verbose_name="project name", max_length=25)
-    id = models.UUIDField(verbose_name="project id", primary_key=True, default=uuid_str(), editable=False)
+    id = models.UUIDField(verbose_name="project id", primary_key=True, default=uuid_str, editable=False)
     imageA = models.URLField(verbose_name="imageA url", default="", max_length=1024, blank=True)
     imageB = models.URLField(verbose_name="imageB url", default="", max_length=1024, blank=True)
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="create time")
@@ -41,7 +42,7 @@ class Task(models.Model):
         verbose_name="project that the task belongs to",
         on_delete=models.CASCADE
     )
-    id = models.UUIDField(verbose_name="task id", primary_key=True, default=uuid_str(), editable=False)
+    id = models.UUIDField(verbose_name="task id", primary_key=True, default=uuid_str, editable=False)
     status = models.CharField(verbose_name="task status", max_length=10, default="pending")
     create_time = models.DateTimeField(auto_now_add=True)
     mask = models.URLField(verbose_name="mask url", default="", max_length=1024, blank=True)
@@ -61,9 +62,10 @@ class Image(models.Model):
         verbose_name="user that own the image",
         on_delete=models.CASCADE
     )
-    id = models.UUIDField(verbose_name="image id", primary_key=True, default=uuid_str(), editable=False)
+    id = models.UUIDField(verbose_name="image id", primary_key=True, default=uuid_str, editable=False)
     url = models.URLField(verbose_name="image url", default="", max_length=1024)
-    name = models.CharField(verbose_name="image name", default="", max_length=100)
+    name = models.CharField(verbose_name="image name", default="未命名", max_length=100)
     create_time = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(verbose_name="image type", default="", max_length=100)
     def __str__(self):
         return "a image"
