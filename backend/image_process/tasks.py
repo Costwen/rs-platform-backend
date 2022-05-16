@@ -31,7 +31,7 @@ handle_func = {
 
 
 @celery_app.task(bind=True)
-def image_handler(self, project_id, user_id, coordinate):
+def image_handler(self):
     task_id = self.request.id
     task = Task.objects.get(pk=task_id)
     handle_func[type](task)

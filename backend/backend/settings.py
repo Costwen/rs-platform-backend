@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 from backend.util import Predictor
 from backend.Config import Config
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +26,6 @@ SECRET_KEY = 'xptv%pmrnbvf@f_i89qv9zux#ad^ihoqq0ll+8!^+%yk2779lr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-LOGIN_URL = '/account/login/'
 
 ALLOWED_HOSTS = ["*"]
 
@@ -145,10 +144,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = '/media/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SESSION_COOKIE_AGE = 360000
-
 predictor = Predictor(Config)
 
 # celery相关配置
@@ -165,7 +164,6 @@ CELERY_RESULT_BACKEND = 'redis://:buaa2022gogogo@101.43.134.156:6378/1' # BACKEN
 CELERY_RESULT_EXPIRES = None  # 存储结果过期时间
 
 CELERY_RESULT_SERIALIZER = 'json' # 结果序列化方案
-
 
 
 # 可选参数：给某个任务限流
