@@ -118,7 +118,7 @@ class Predictor:
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze().astype("uint8")
         output_img = self._get_pseudo_color_map(output)
-        return output_img,np.bincount(output.reshape(-1))[1]
+        return output_img, np.bincount(output.reshape(-1))[1]
 
 
 def toRad(value):
