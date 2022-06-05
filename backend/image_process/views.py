@@ -63,14 +63,15 @@ def login_required(func):
 
 # 任务类
 class TaskSetView(APIView):
-    http_method_names = ["get", "put"]
+    http_method_names = ["get", "post"]
 
     @login_required
-    def put(self,request):
+    def post(self,request):
         user = request.user
         project_id = request.data.get("project_id", None)
         coordinate = request.data.get("coordinate",None)
         task = Task.objects.create(user=user, project_id=project_id, coordinate=coordinate)
+        image_handler.delay(task_id=task.id)
         return Response(
             data={"message":"创建成功","id":task.pk},
             status=status.HTTP_200_OK
@@ -130,7 +131,7 @@ class TaskDetailView(APIView):
 # 项目类
 class ProjectSetView(APIView):
     # 限制请求方式
-    http_method_names = ["get", "put"]
+    http_method_names = ["get", "post"]
 
     @login_required
     def get(self,request):
@@ -164,7 +165,7 @@ class ProjectSetView(APIView):
         )
 
     @login_required
-    def put(self,request):
+    def post(self,request):
         user = request.user
         imageA = request.data.get("imageA","")
         imageB = request.data.get("imageB","")
@@ -180,7 +181,7 @@ class ProjectSetView(APIView):
 # 项目详情类
 class ProjectDetailView(APIView):
     # 限制请求方式
-    http_method_names = ["get", "post", "delete"]
+    http_method_names = ["get", "put", "delete"]
     @login_required
     def get(self,request, pk):
         user = request.user
@@ -220,7 +221,7 @@ class ProjectDetailView(APIView):
             status=status.HTTP_200_OK
         )
     @login_required
-    def post(self,request, pk):
+    def put(self,request, pk):
         user = request.user
         project = Project.objects.filter(pk=pk)
         if len(project) == 0:
@@ -301,9 +302,9 @@ class ImageUploadView(APIView):
 
 
 class ImageManagementView(APIView):
-    http_method_names = ["post","get","delete"]
+    http_method_names = ["put","get","delete"]
     @login_required
-    def post(self, request, pk):
+    def put(self, request, pk):
         image = get_object_or_404(Image, pk=pk)
         image.name = request.name
         image.save()

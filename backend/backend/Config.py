@@ -19,3 +19,5 @@ class Config:
     sort_category = ["Bare soil","Building","Pavement","Road","Vegetation","Water"]
 
     enable_gpu = False
+
+    
