@@ -8,6 +8,7 @@
 
 python manage.py makemigrations account image_process&&
 python manage.py migrate&&
+celery -A backend worker -l info&&
 uwsgi /root/backend/uwsgi.ini&&
 # tail空命令，保证有一个任务在前台执行，防止容器退出
 tail -f /root/backend/requirements.txt
