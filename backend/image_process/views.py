@@ -96,6 +96,7 @@ class TaskSetView(APIView):
             status=status.HTTP_200_OK
         )
 
+
 # 任务详情类
 class TaskDetailView(APIView):
     http_method_names = ["get", "delete"]
@@ -125,7 +126,6 @@ class TaskDetailView(APIView):
             data={"message":"删除成功"},
             status=status.HTTP_200_OK
         )
-
 
 
 # 项目类
