@@ -12,3 +12,4 @@ media
 static
 backend/*.png
 backend/*.jpg
+params/
