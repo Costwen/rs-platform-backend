@@ -1,9 +1,5 @@
-import ast
-from hashlib import new
 import json
-from matplotlib import image
 from rest_framework import status
-from rest_framework.decorators import api_view
 from sympy import re
 from backend.settings import predictor as P
 from backend.util import MapImageHelper
@@ -13,13 +9,10 @@ import PIL
 from image_process.models import *
 from django.shortcuts import get_object_or_404
 from image_process.tasks import *
-from celery.result import AsyncResult
 from image_process.tasks import image_handler
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import demjson
-from django.core.paginator import Paginator
 from .serializer import ImageSerializer
 # 验证登录
 # 跳转到登录界面更好

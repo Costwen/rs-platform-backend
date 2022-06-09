@@ -1,8 +1,6 @@
-import django.contrib.sessions.backends.db
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate,login
-from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.decorators import login_required,permission_required
 from rest_framework import status
 from rest_framework.decorators import *
