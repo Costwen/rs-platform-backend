@@ -47,7 +47,7 @@ services:
                 depends_on: # 决定了容器启动的先后顺序
 #                        - db
                         - redis
-                restart: always
+#                restart: always
                 tty: true
                 stdin_open: true
 
