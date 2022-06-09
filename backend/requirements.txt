@@ -13,3 +13,4 @@ opencv-python
 requests
 sympy
 celery
+djangorestframework_simplejwt==5.1.0
