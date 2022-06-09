@@ -11,3 +11,5 @@ redis
 django-redis
 opencv-python
 requests
+sympy
+celery

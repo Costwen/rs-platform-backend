@@ -19,8 +19,8 @@ Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}
 class Predictor:
     def __init__(self, config):
         self.config = config
-        # self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
-        # self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
+        self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
+        self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
         self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
         self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
 
@@ -74,8 +74,34 @@ class Predictor:
         result = cv2.morphologyEx(image,cv2.MORPH_CLOSE,kernel)
         return result
 
-    def contrast_predict(self, np_img,target_image):
-        pass
+    def contrast_predict(self, np_img,target_img):
+        input_names = self.contrast_predictor.get_input_names()
+        input_handle1 = self.contrast_predictor.get_input_handle(input_names[0])
+        input_handle2 = self.contrast_predictor.get_input_handle(input_names[1])
+
+        img1 = np.array(np_img.resize((1024, 1024)))
+        img2 = np.array(target_img.resize((1024, 1024)))
+
+        img1 = self._normalize(img1)[np.newaxis, :, :, :]
+        img2 = self._normalize(img2)[np.newaxis, :, :, :]
+
+        input_handle1.reshape([1, 3, 1024, 1024])
+        input_handle1.copy_from_cpu(img1)
+        input_handle2.reshape([1, 3, 1024, 1024])
+        input_handle2.copy_from_cpu(img2)
+        # 运行predictor
+        begin_time = time.time()
+        self.contrast_predictor.run()
+        end_time = time.time()
+        print("predict time: %f" % (end_time - begin_time))
+        # 获取输出
+        output_names = self.contrast_predictor.get_output_names()
+        output_handle = self.contrast_predictor.get_output_handle(output_names[0])
+        output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
+        output_data = output_data.reshape(1024, 1024)
+        im = Image.fromarray(output_data.astype('uint8') * 255)
+        return im, np.bincount(im.reshape(-1))
+
 
     def sort_predict(self, file):
         input_names = self.sort_predictor.get_input_names()
@@ -87,7 +113,6 @@ class Predictor:
         input_handle.reshape([1, input.shape[0], input.shape[1], input.shape[2]])  # 这里不对输入tensor作任何处理
         input_handle.copy_from_cpu(input)
         # 运行predictor
-        start = time.time()
         self.sort_predictor.run()
         # 获取输出
         output_names = self.sort_predictor.get_output_names()
@@ -127,33 +152,44 @@ def toRad(value):
 
 class MapImageHelper:
     @staticmethod
-    def getImage(x1, y1, x2, y2, zoom = 18):
-        print("x1:", x1, "y1:", y1, "x2:", x2, "y2:", y2)
-        x1,y1,x2,y2 = MapImageHelper.coordinate_transfer(x1, y1, x2, y2, zoom)
-        print("x1:", x1, "y1:", y1, "x2:", x2, "y2:", y2)
+    def getImage(x1, y1, x2, y2, zoom=18):
+        x1, y1, x2, y2, start_x, start_y, end_x, end_y = MapImageHelper.coordinate_transfer(x1, y1, x2, y2, zoom)
         im_list = []
-        for i in range(x1,x2+1):
-            for j in range(y1,y2+1):
-                url = Map_url_template.format(i,j)
+        for i in range(x1, x2 + 1):
+            for j in range(y1, y2 + 1):
+                url = Map_url_template.format(i, j)
                 response = requests.get(url)
                 data = response.content
                 image = Image.open(BytesIO(data)).convert('RGB')
                 im = np.array(image)
+                print(im.shape)
                 im_list.append(im)
-        im_list = np.array(im_list).reshape([x2-x1+1, y2-y1+1, 256, 256, 3])
+        im_list = np.array(im_list).reshape([x2 - x1 + 1, y2 - y1 + 1, 256, 256, 3])
         im_list = np.transpose(im_list, [1, 2, 0, 3, 4])
-        im_list = im_list.reshape([256*(x2-x1+1), 256*(y2-y1+1), 3])
-        # TODO crop here!
+        im_list = im_list.reshape([256 * (x2 - x1 + 1), 256 * (y2 - y1 + 1), 3])
+
+        start_idx = np.floor(im_list.shape[0] * (start_x - x1) / (x2 - x1 + 1)).astype(np.int32)
+        end_idx = np.floor(im_list.shape[0] * (end_x - x1) / (x2 - x1 + 1)).astype(np.int32)
+
+        start_idy = np.floor(im_list.shape[1] * (start_y - y1) / (y2 - y1 + 1)).astype(np.int32)
+        end_idy = np.floor(im_list.shape[1] * (end_y - y1) / (y2 - y1 + 1)).astype(np.int32)
+        im_list = im_list[start_idx: end_idx, start_idy: end_idy]
+
         im = Image.fromarray(im_list)
         return im
 
-
     @staticmethod
     def coordinate_transfer(x1, y1, x2, y2, zoom=18):
+        start_x = (x1 + 180) / 360 * (1 << zoom)
         xtile_1 = np.floor((x1 + 180) / 360 * (1 << zoom)).astype(np.int32).item(0)
-        ytile_1 = np.floor((1 - np.log(np.tan(toRad(y1)) + 1 / np.cos(toRad(y1))) / np.pi) / 2 * (1 << zoom)).astype(np.int32).item(0)
+        start_y = (1 - np.log(np.tan(toRad(y1)) + 1 / np.cos(toRad(y1))) / np.pi) / 2 * (1 << zoom)
+        ytile_1 = np.floor((1 - np.log(np.tan(toRad(y1)) + 1 / np.cos(toRad(y1))) / np.pi) / 2 * (1 << zoom)).astype(
+            np.int32).item(0)
 
+        end_x = (x2 + 180) / 360 * (1 << zoom)
         xtile_2 = np.floor((x2 + 180) / 360 * (1 << zoom)).astype(np.int32).item(0)
-        ytile_2 = np.floor((1 - np.log(np.tan(toRad(y2)) + 1 / np.cos(toRad(y2))) / np.pi) / 2 * (1 << zoom)).astype(np.int32).item(0)
-        return  xtile_1,ytile_1,xtile_2,ytile_2
+        end_y = (1 - np.log(np.tan(toRad(y2)) + 1 / np.cos(toRad(y2))) / np.pi) / 2 * (1 << zoom)
+        ytile_2 = np.floor((1 - np.log(np.tan(toRad(y2)) + 1 / np.cos(toRad(y2))) / np.pi) / 2 * (1 << zoom)).astype(
+            np.int32).item(0)
+        return xtile_1, ytile_1, xtile_2, ytile_2, start_x, start_y, end_x, end_y
 

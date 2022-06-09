@@ -13,8 +13,8 @@ class Config:
     sort_model_path = "params/deploy_sort/model.pdmodel"
     sort_param_path = "params/deploy_sort/model.pdiparams"
 
-    constrast_model_path = "params/retrieval.pdmodel"
-    constrast_param_path = "params/retrieval.pdiparams"
+    constrast_model_path = "params/deploy_contrast/model.pdmodel"
+    constrast_param_path = "params/deploy_contrast/model.pdiparams"
 
     sort_category = ["Bare soil","Building","Pavement","Road","Vegetation","Water"]
 
