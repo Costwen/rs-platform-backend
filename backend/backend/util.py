@@ -19,8 +19,8 @@ Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}
 class Predictor:
     def __init__(self, config):
         self.config = config
-        self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
-        self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
+        # self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
+        # self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
         self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
         self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
 
