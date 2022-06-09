@@ -157,9 +157,9 @@ timezone = TIME_ZONE
 # 任务队列的链接地址 celery配置redis作为broker。redis有16个数据库，编号0~15，这里使用第1个。
 # CELERY_result_backend = 'redis://buaa2022gogogo@101.43.134.156:6379/1'
 
-CELERY_BROKER_URL = 'redis://:buaa2022gogogo@101.43.134.156:6378/0' # Broker配置，使用Redis作为消息中间件
+CELERY_BROKER_URL = 'redis://:buaa2022gogogo@101.43.134.156:6379/0' # Broker配置，使用Redis作为消息中间件
 
-CELERY_RESULT_BACKEND = 'redis://:buaa2022gogogo@101.43.134.156:6378/1' # BACKEND配置，这里使用redis
+CELERY_RESULT_BACKEND = 'redis://:buaa2022gogogo@101.43.134.156:6379/1' # BACKEND配置，这里使用redis
 
 CELERY_RESULT_EXPIRES = None  # 存储结果过期时间
 
