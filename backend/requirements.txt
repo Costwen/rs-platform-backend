@@ -14,3 +14,4 @@ requests
 sympy
 celery
 djangorestframework_simplejwt
+matplotlib
