@@ -12,7 +12,7 @@ def uuid_str():
 class Image(models.Model):
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        related_name="image_user",
+        related_name="image_list",
         verbose_name="user that own the image",
         on_delete=models.CASCADE
     )
@@ -29,14 +29,14 @@ class Image(models.Model):
 class Project(models.Model):
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        related_name="project_user",
+        related_name="project_list",
         verbose_name="user that own the project",
         on_delete=models.CASCADE
     )
     name = models.CharField(verbose_name="project name", max_length=25)
     id = models.UUIDField(verbose_name="project id", primary_key=True, default=uuid_str, editable=False)
-    imageA = models.ForeignKey(to=Image, related_name="imageA", verbose_name="imageA", on_delete=models.DO_NOTHING, blank=True)
-    imageB = models.ForeignKey(to=Image, related_name="imageB", verbose_name="imageB", on_delete=models.DO_NOTHING, blank=True)
+    imageA = models.ForeignKey(to=Image, related_name="imageA_project", verbose_name="imageA", on_delete=models.CASCADE, blank=True)
+    imageB = models.ForeignKey(to=Image, related_name="imageB_project", verbose_name="imageB", on_delete=models.CASCADE, blank=True)
     
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="create time")
     modify_time = models.DateTimeField(auto_now=True, verbose_name="modify time")
@@ -48,22 +48,23 @@ class Project(models.Model):
 class Task(models.Model):
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        related_name="task_user",
+        related_name="task_list",
         verbose_name="user that own the task",
         on_delete=models.CASCADE
     )
     project = models.ForeignKey(
         to=Project,
-        related_name="project",
+        related_name="task_list",
         verbose_name="project that the task belongs to",
         on_delete=models.CASCADE
     )
     id = models.UUIDField(verbose_name="task id", primary_key=True, default=uuid_str, editable=False)
     status = models.CharField(verbose_name="task status", max_length=10, default="pending")
     create_time = models.DateTimeField(auto_now_add=True)
-    mask = models.URLField(verbose_name="mask url", default="", max_length=1024, blank=True)
-    imageA = models.ForeignKey(to=Image, related_name="inputA", verbose_name="inputA", on_delete=models.DO_NOTHING, blank=True)
-    imageB = models.ForeignKey(to=Image, related_name="inputB", verbose_name="inputB", on_delete=models.DO_NOTHING, blank=True)
+    
+    imageA = models.ForeignKey(to=Image, related_name="imageA_task", verbose_name="inputA", on_delete=models.CASCADE, blank=True)
+    imageB = models.ForeignKey(to=Image, related_name="imageB_task", verbose_name="inputB", on_delete=models.CASCADE, blank=True)
+    mask = models.ForeignKey(to=Image, related_name="mask_task", verbose_name="mask", on_delete=models.CASCADE, blank=True)
     coordinate = models.JSONField(verbose_name="coordinate result", default=dict, blank=True, null=True)
     analysis = models.JSONField(verbose_name="analysis result", default=dict)
     

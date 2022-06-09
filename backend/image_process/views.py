@@ -20,34 +20,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 import demjson
 from django.core.paginator import Paginator
-
-# # TODO： account not done
-# @api_view(["PUT"])
-# def create_new_task(request):
-#     project_id = request.data.get("project_id", None)
-#     user_id = request.user.pk
-#     coordinate = request.data.get("coordinate",None)
-#     task = image_handler.delay(project_id, user_id, coordinate)
-#     Task.objects.create(task_id=task.id, user=user, project=project, coordinate=coordinate)
-#     return Response(
-#         data={
-#             "message": "创建成功",
-#             "task_id": task.id},
-#         status=status.HTTP_200_OK
-#     )
-
-
-# @api_view(["POST","DEL"])
-# def change_task_info(request):
-#     pass
-
-
-# @api_view(["GET"])
-# def result_detail(request):
-#     user = request.user
-#     result = get_object_or_404(Inference,user = user,pk = request.GET["id"])
-#     return JsonResponse
-
+from .serializer import ImageSerializer
 # 验证登录
 # 跳转到登录界面更好
 def login_required(func):
@@ -60,11 +33,14 @@ def login_required(func):
         return func(self, request,*args,**kwargs)
     return wrapper
 
+def image2json(image):
+    serizalizer = ImageSerializer(instance=image)
+    return serizalizer.data
+
 
 # 任务类
 class TaskSetView(APIView):
     http_method_names = ["get", "post"]
-
     @login_required
     def post(self,request):
         user = request.user
@@ -88,8 +64,10 @@ class TaskSetView(APIView):
                 "project_id":task.project_id,
                 "coordinate":task.coordinate,
                 "status":task.status,
-                "mask":task.mask,
-                "create_time":task.create_time,
+                "mask": image2json(task.mask),
+                "imageA": image2json(task.imageA),
+                "imageB": image2json(task.imageB),
+                "create_time":task.create_time.strftime("%Y-%m-%d %H:%M:%S"),
             })
         return Response(
             data={"message":"获取成功","data":data},
@@ -106,14 +84,18 @@ class TaskDetailView(APIView):
         user = request.user
         task = get_object_or_404(Task,user = user,pk = pk)
         return Response(
-            data={"message":"获取成功","data":{
-                "id":task.pk,
-                "project_id":task.project_id,
-                "coordinate":task.coordinate,
-                "status":task.status,
-                "mask":task.mask,
-                "create_time":task.create_time,
-            }},
+            data={
+                "message":"获取成功",
+                "task":{
+                    "id":task.pk,
+                    "project_id":task.project_id,
+                    "coordinate":task.coordinate,
+                    "status":task.status,
+                    "mask": image2json(task.mask),
+                    "imageA": image2json(task.imageA),
+                    "imageB": image2json(task.imageB),
+                    "create_time":task.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                }},
             status=status.HTTP_200_OK
         )
 
@@ -151,8 +133,8 @@ class ProjectSetView(APIView):
             results.append({
                 "name": project.name,
                 "type": project.type,
-                "imageA": project.imageA,
-                "imageB": project.imageB,
+                "imageA": image2json(project.imageA),
+                "imageB": image2json(project.imageB),
                 "id": project.pk,
                 "create_time": create_time,
                 "modify_time": modify_time,
@@ -194,14 +176,16 @@ class ProjectDetailView(APIView):
                 "project_id":task.project_id,
                 "coordinate":task.coordinate,
                 "status":task.status,
-                "mask":task.mask,
+                "mask": image2json(task.mask),
+                "imageA": image2json(task.imageA),
+                "imageB": image2json(task.imageB),
                 "create_time":task.create_time.strftime("%Y-%m-%d %H:%M:%S"),
             })
         data = {
             "name": project.name,
             "type": project.type,
-            "imageA": project.imageA,
-            "imageB": project.imageB,
+            "imageA": image2json(project.imageA),
+            "imageB": image2json(project.imageB),
             "id": project.pk,
             "create_time": project.create_time.strftime("%Y-%m-%d %H:%M:%S"),
             "modify_time": project.modify_time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -246,20 +230,21 @@ class ImageUploadView(APIView):
         coordinate = request.data["coordinate"]
         name = request.data.get("name","Untitled")
         #  convert coordinate to json
-        new_record = Image(user = request.user, name=name, type = "map")
+        new_record = Image(user = request.user, name=name, type = "public")
         coordinate = json.loads(coordinate)
         target_img = MapImageHelper.getImage(coordinate["tl"][0],coordinate["br"][1],coordinate["br"][0],coordinate["tl"][1])
         filename = new_record.id + ".png"
+        H, W = target_img.size
+        new_record.H = H
+        new_record.W = W
         target_img.save("./media/"+filename)
         new_record.url = "/images/" + filename
         new_record.save()
         return Response(
             status=status.HTTP_200_OK,
             data={
-                "url":request.scheme+"://"+request.META["HTTP_HOST"]+new_record.url,
-                "id" :new_record.pk,
-                "create_time":new_record.create_time,
-                "name": new_record.name
+                "message": "上传成功",
+                "image": image2json(new_record),
             }
         )
 
@@ -269,13 +254,7 @@ class ImageUploadView(APIView):
         images = Image.objects.filter(user = request.user)
         result = []
         for img in images:
-            create_time = img.create_time.strftime("%Y-%m-%d %H:%M:%S")
-            result.append({
-                "name":img.name,
-                "url":request.scheme+"://"+request.META["HTTP_HOST"]+img.url,
-                "id":img.pk,
-                "create_time":create_time,
-            })
+            result.append(image2json(img))
         return Response(
             status=status.HTTP_200_OK,
             data={
@@ -288,18 +267,16 @@ class ImageUploadView(APIView):
     def put(self, request):
         file = request.data["file"]
         target_img = PIL.Image.open(file)
-        new_record = Image(user=request.user, name=request.data["name"], type="custom")
+        H, W = target_img.size
+        new_record = Image(user=request.user, name=request.data["name"], type="custom", H=H, W=W)
         filename = new_record.id + ".png"
         target_img.save("./media/"+filename)
         new_record.save()
-        create_time = new_record.create_time.strftime("%Y-%m-%d %H:%M:%S")
         return Response(
             status=status.HTTP_200_OK,
             data={
-                "url":request.scheme+"://"+request.META["HTTP_HOST"]+new_record.url,
-                "id" :new_record.pk,
-                "create_time": create_time,
-                "name": new_record.name
+                "message": "上传成功",
+                "image": image2json(new_record),
             }
         )
 
@@ -324,10 +301,7 @@ class ImageManagementView(APIView):
         return Response(
             status=status.HTTP_200_OK,
             data={
-                "name":record.name,
-                "url":request.scheme+"://"+request.META["HTTP_HOST"]+record.url,
-                "id":record.pk,
-                "create_time":record.create_time
+                "image": image2json(record),
             }
         )
 
