@@ -1,5 +1,3 @@
-from dataclasses import fields
-from venv import create
 from rest_framework import serializers
 from .models import Image
 
