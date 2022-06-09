@@ -19,7 +19,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import demjson
-
+from django.core.paginator import Paginator
 
 # # TODO： account not done
 # @api_view(["PUT"])
@@ -195,7 +195,7 @@ class ProjectDetailView(APIView):
                 "coordinate":task.coordinate,
                 "status":task.status,
                 "mask":task.mask,
-                "create_time":task.create_time,
+                "create_time":task.create_time.strftime("%Y-%m-%d %H:%M:%S"),
             })
         data = {
             "name": project.name,
@@ -203,7 +203,8 @@ class ProjectDetailView(APIView):
             "imageA": project.imageA,
             "imageB": project.imageB,
             "id": project.pk,
-            "create_time": project.create_time,
+            "create_time": project.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "modify_time": project.modify_time.strftime("%Y-%m-%d %H:%M:%S"),
             "tasks": tasks,     
         }
         return Response(
@@ -277,7 +278,9 @@ class ImageUploadView(APIView):
             })
         return Response(
             status=status.HTTP_200_OK,
-            data={"images":result}
+            data={
+                "images": result,
+            }
         )
 
     # 用户上传自定义图片
