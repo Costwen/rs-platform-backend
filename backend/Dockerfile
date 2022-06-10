@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.7
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.backup
 COPY sources.list /etc/apt/sources.list
