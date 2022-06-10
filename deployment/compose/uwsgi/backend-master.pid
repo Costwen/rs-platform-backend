@@ -1,0 +1,119 @@
+40
+detected binary path: /usr/local/bin/uwsgi
+chdir() to /root/backend
+your memory page size is 4096 bytes
+detected max file descriptor number: 1048576
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address 0.0.0.0:8000 fd 3
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+Python version: 3.6.15 (default, Dec 21 2021, 12:03:22)  [GCC 10.2.1 20210110]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0x5584612b1c70
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 712755 bytes (696 KB) for 4 cores
+*** Operational MODE: preforking ***
+[1m[35m--- Running analysis [ir_graph_build_pass][0m
+[1m[35m--- Running analysis [ir_graph_clean_pass][0m
+[1m[35m--- Running analysis [ir_analysis_pass][0m
+[32m--- Running IR pass [simplify_with_basic_ops_pass][0m
+[32m--- Running IR pass [layer_norm_fuse_pass][0m
+[37m---    Fused 0 subgraphs into layer_norm op.[0m
+[32m--- Running IR pass [attention_lstm_fuse_pass][0m
+[32m--- Running IR pass [seqconv_eltadd_relu_fuse_pass][0m
+[32m--- Running IR pass [seqpool_cvm_concat_fuse_pass][0m
+[32m--- Running IR pass [mul_lstm_fuse_pass][0m
+[32m--- Running IR pass [fc_gru_fuse_pass][0m
+[37m---    fused 0 pairs of fc gru patterns[0m
+[32m--- Running IR pass [mul_gru_fuse_pass][0m
+[32m--- Running IR pass [seq_concat_fc_fuse_pass][0m
+[32m--- Running IR pass [squeeze2_matmul_fuse_pass][0m
+[32m--- Running IR pass [reshape2_matmul_fuse_pass][0m
+[32m--- Running IR pass [flatten2_matmul_fuse_pass][0m
+[32m--- Running IR pass [map_matmul_v2_to_mul_pass][0m
+[32m--- Running IR pass [map_matmul_v2_to_matmul_pass][0m
+[32m--- Running IR pass [map_matmul_to_mul_pass][0m
+[32m--- Running IR pass [fc_fuse_pass][0m
+[32m--- Running IR pass [repeated_fc_relu_fuse_pass][0m
+[32m--- Running IR pass [squared_mat_sub_fuse_pass][0m
+[32m--- Running IR pass [conv_bn_fuse_pass][0m
+I0609 13:52:04.922832    40 fuse_pass_base.cc:57] ---  detected 39 subgraphs
+[32m--- Running IR pass [conv_eltwiseadd_bn_fuse_pass][0m
+I0609 13:52:04.928797    40 fuse_pass_base.cc:57] ---  detected 4 subgraphs
+[32m--- Running IR pass [conv_transpose_bn_fuse_pass][0m
+[32m--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass][0m
+[32m--- Running IR pass [is_test_pass][0m
+[32m--- Running IR pass [runtime_context_cache_pass][0m
+[1m[35m--- Running analysis [ir_params_sync_among_devices_pass][0m
+[1m[35m--- Running analysis [adjust_cudnn_workspace_size_pass][0m
+[1m[35m--- Running analysis [inference_op_replace_pass][0m
+[1m[35m--- Running analysis [ir_graph_to_program_pass][0m
+I0609 13:52:05.002717    40 analysis_predictor.cc:714] ======= optimize end =======
+I0609 13:52:05.006805    40 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0609 13:52:05.009655    40 naive_executor.cc:98] ---  skip [argmax_0.tmp_0], fetch -> fetch
+[1m[35m--- Running analysis [ir_graph_build_pass][0m
+[1m[35m--- Running analysis [ir_graph_clean_pass][0m
+[1m[35m--- Running analysis [ir_analysis_pass][0m
+[32m--- Running IR pass [simplify_with_basic_ops_pass][0m
+[32m--- Running IR pass [layer_norm_fuse_pass][0m
+[37m---    Fused 0 subgraphs into layer_norm op.[0m
+[32m--- Running IR pass [attention_lstm_fuse_pass][0m
+[32m--- Running IR pass [seqconv_eltadd_relu_fuse_pass][0m
+[32m--- Running IR pass [seqpool_cvm_concat_fuse_pass][0m
+[32m--- Running IR pass [mul_lstm_fuse_pass][0m
+[32m--- Running IR pass [fc_gru_fuse_pass][0m
+[37m---    fused 0 pairs of fc gru patterns[0m
+[32m--- Running IR pass [mul_gru_fuse_pass][0m
+[32m--- Running IR pass [seq_concat_fc_fuse_pass][0m
+[32m--- Running IR pass [squeeze2_matmul_fuse_pass][0m
+[32m--- Running IR pass [reshape2_matmul_fuse_pass][0m
+[32m--- Running IR pass [flatten2_matmul_fuse_pass][0m
+[32m--- Running IR pass [map_matmul_v2_to_mul_pass][0m
+[32m--- Running IR pass [map_matmul_v2_to_matmul_pass][0m
+[32m--- Running IR pass [map_matmul_to_mul_pass][0m
+[32m--- Running IR pass [fc_fuse_pass][0m
+[32m--- Running IR pass [repeated_fc_relu_fuse_pass][0m
+[32m--- Running IR pass [squared_mat_sub_fuse_pass][0m
+[32m--- Running IR pass [conv_bn_fuse_pass][0m
+I0609 13:52:05.132333    40 fuse_pass_base.cc:57] ---  detected 39 subgraphs
+[32m--- Running IR pass [conv_eltwiseadd_bn_fuse_pass][0m
+I0609 13:52:05.138339    40 fuse_pass_base.cc:57] ---  detected 4 subgraphs
+[32m--- Running IR pass [conv_transpose_bn_fuse_pass][0m
+[32m--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass][0m
+[32m--- Running IR pass [is_test_pass][0m
+[32m--- Running IR pass [runtime_context_cache_pass][0m
+[1m[35m--- Running analysis [ir_params_sync_among_devices_pass][0m
+[1m[35m--- Running analysis [adjust_cudnn_workspace_size_pass][0m
+[1m[35m--- Running analysis [inference_op_replace_pass][0m
+[1m[35m--- Running analysis [ir_graph_to_program_pass][0m
+I0609 13:52:05.211017    40 analysis_predictor.cc:714] ======= optimize end =======
+I0609 13:52:05.215060    40 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0609 13:52:05.217885    40 naive_executor.cc:98] ---  skip [argmax_0.tmp_0], fetch -> fetch
+WSGI app 0 (mountpoint='') ready in 2 seconds on interpreter 0x5584612b1c70 pid: 40 (default app)
+*** WARNING: you are running uWSGI as root !!! (use the --uid flag) *** 
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 40)
+spawned uWSGI worker 1 (pid: 55, cores: 1)
+spawned uWSGI worker 2 (pid: 56, cores: 1)
+spawned uWSGI worker 3 (pid: 57, cores: 1)
+spawned uWSGI worker 4 (pid: 58, cores: 1)
+/usr/local/lib/python3.6/site-packages/rest_framework_simplejwt/exceptions.py:38: RemovedInDjango40Warning: django.utils.translation.ugettext_lazy() is deprecated in favor of django.utils.translation.gettext_lazy().
+  default_detail = _('Token is invalid or expired')
+/usr/local/lib/python3.6/site-packages/rest_framework_simplejwt/serializers.py:24: RemovedInDjango40Warning: django.utils.translation.ugettext_lazy() is deprecated in favor of django.utils.translation.gettext_lazy().
+  'no_active_account': _('No active account found with the given credentials')
+Not Found: /
+{address space usage: 1166753792 bytes/1112MB} {rss usage: 300343296 bytes/286MB} [pid: 58|app: 0|req: 1/1] 113.247.15.130 () {42 vars in 904 bytes} [Thu Jun  9 13:53:57 2022] GET / => generated 3253 bytes in 628 msecs (HTTP/1.1 404) 5 headers in 159 bytes (1 switches on core 0)
+...The work of process 58 is done. Seeya!
+/usr/local/lib/python3.6/site-packages/rest_framework_simplejwt/exceptions.py:38: RemovedInDjango40Warning: django.utils.translation.ugettext_lazy() is deprecated in favor of django.utils.translation.gettext_lazy().
+  default_detail = _('Token is invalid or expired')
+/usr/local/lib/python3.6/site-packages/rest_framework_simplejwt/serializers.py:24: RemovedInDjango40Warning: django.utils.translation.ugettext_lazy() is deprecated in favor of django.utils.translation.gettext_lazy().
+  'no_active_account': _('No active account found with the given credentials')
+worker 4 killed successfully (pid: 58)
+Respawned uWSGI worker 4 (new pid: 59)
+Not Found: /favicon.ico
+{address space usage: 1166753792 bytes/1112MB} {rss usage: 300306432 bytes/286MB} [pid: 57|app: 0|req: 1/2] 113.247.15.130 () {42 vars in 858 bytes} [Thu Jun  9 13:53:58 2022] GET /favicon.ico => generated 3304 bytes in 624 msecs (HTTP/1.1 404) 5 headers in 159 bytes (1 switches on core 0)
+...The work of process 57 is done. Seeya!
+worker 3 killed successfully (pid: 57)
+Respawned uWSGI worker 3 (new pid: 60)

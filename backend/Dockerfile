@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.7
 
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.backup
 COPY sources.list /etc/apt/sources.list
@@ -14,6 +14,8 @@ RUN apt-get install -y python3-opencv
 COPY pip.conf /root/.pip/pip.conf
 RUN pip config set global.index-url http://mirrors.aliyun.com/pypi/simple
 RUN pip config set install.trusted-host mirrors.aliyun.com
+RUN pip uninstall protobuf
+RUN pip install protobuf==3.19.0
 RUN python -m pip install paddlepaddle==2.2.2 -i https://mirror.baidu.com/pypi/simple
 ENV APP_HOME=/root/backend
 RUN mkdir -p $APP_HOME

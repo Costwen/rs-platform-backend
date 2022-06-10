@@ -35,8 +35,8 @@ class Project(models.Model):
     )
     name = models.CharField(verbose_name="project name", max_length=25)
     id = models.UUIDField(verbose_name="project id", primary_key=True, default=uuid_str, editable=False)
-    imageA = models.ForeignKey(to=Image, related_name="imageA_project", verbose_name="imageA", on_delete=models.CASCADE, blank=True)
-    imageB = models.ForeignKey(to=Image, related_name="imageB_project", verbose_name="imageB", on_delete=models.CASCADE, blank=True)
+    imageA = models.ForeignKey(to=Image, related_name="imageA_project", verbose_name="imageA", on_delete=models.CASCADE, blank=True, null=True)
+    imageB = models.ForeignKey(to=Image, related_name="imageB_project", verbose_name="imageB", on_delete=models.CASCADE, blank=True, null=True)
     
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="create time")
     modify_time = models.DateTimeField(auto_now=True, verbose_name="modify time")
@@ -62,9 +62,9 @@ class Task(models.Model):
     status = models.CharField(verbose_name="task status", max_length=10, default="pending")
     create_time = models.DateTimeField(auto_now_add=True)
     
-    imageA = models.ForeignKey(to=Image, related_name="imageA_task", verbose_name="inputA", on_delete=models.CASCADE, blank=True)
-    imageB = models.ForeignKey(to=Image, related_name="imageB_task", verbose_name="inputB", on_delete=models.CASCADE, blank=True)
-    mask = models.ForeignKey(to=Image, related_name="mask_task", verbose_name="mask", on_delete=models.CASCADE, blank=True)
+    imageA = models.ForeignKey(to=Image, related_name="imageA_task", verbose_name="inputA", on_delete=models.CASCADE, blank=True, null=True)
+    imageB = models.ForeignKey(to=Image, related_name="imageB_task", verbose_name="inputB", on_delete=models.CASCADE, blank=True, null=True)
+    mask = models.ForeignKey(to=Image, related_name="mask_task", verbose_name="mask", on_delete=models.CASCADE, blank=True, null=True)
     coordinate = models.JSONField(verbose_name="coordinate result", default=dict, blank=True, null=True)
     analysis = models.JSONField(verbose_name="analysis result", default=dict)
     
