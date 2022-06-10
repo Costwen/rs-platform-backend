@@ -142,10 +142,14 @@ class ProjectSetView(APIView):
     @login_required
     def post(self,request):
         user = request.user
-        imageA = request.data.get("imageA","")
-        imageB = request.data.get("imageB","")
+        imageA = request.data.get("imageA", None)
+        imageB = request.data.get("imageB", None)
         name = request.data.get("name","")
         type = request.data.get("type","")
+        if imageA is not None:
+            imageA = Image.objects.get(pk = imageA)
+        if imageB is not None:
+            imageB = Image.objects.get(pk = imageB)
         project = Project.objects.create(user = user,name = name,type = type, imageA = imageA, imageB = imageB)
         return Response(
             data={"message":"创建成功","id":project.pk},
