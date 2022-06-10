@@ -1,9 +1,5 @@
-import ast
-from hashlib import new
 import json
-from matplotlib import image
 from rest_framework import status
-from rest_framework.decorators import api_view
 from sympy import re
 from backend.settings import predictor as P
 from backend.util import MapImageHelper
@@ -13,13 +9,10 @@ import PIL
 from image_process.models import *
 from django.shortcuts import get_object_or_404
 from image_process.tasks import *
-from celery.result import AsyncResult
 from image_process.tasks import image_handler
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import demjson
-from django.core.paginator import Paginator
 from .serializer import ImageSerializer
 # 验证登录
 # 跳转到登录界面更好
@@ -149,10 +142,14 @@ class ProjectSetView(APIView):
     @login_required
     def post(self,request):
         user = request.user
-        imageA = request.data.get("imageA","")
-        imageB = request.data.get("imageB","")
+        imageA = request.data.get("imageA", None)
+        imageB = request.data.get("imageB", None)
         name = request.data.get("name","")
         type = request.data.get("type","")
+        if imageA is not None:
+            imageA = Image.objects.get(pk = imageA)
+        if imageB is not None:
+            imageB = Image.objects.get(pk = imageB)
         project = Project.objects.create(user = user,name = name,type = type, imageA = imageA, imageB = imageB)
         return Response(
             data={"message":"创建成功","id":project.pk},
@@ -208,17 +205,32 @@ class ProjectDetailView(APIView):
     @login_required
     def put(self,request, pk):
         user = request.user
-        project = Project.objects.filter(pk=pk)
+        project = Project.objects.get(pk=pk)
         if len(project) == 0:
             return Response(
                 data={"message":"项目不存在"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        project.update(**request.data)
+        imageA = request.data.get("imageA", None)
+        imageB = request.data.get("imageB", None)
+        name = request.data.get("name", project.name)
+        type = request.data.get("type", project.type)
+        status = request.data.get("status", project.status)
+        if imageA is not None:
+            imageA = Image.objects.get(pk = imageA)
+        if imageB is not None:
+            imageB = Image.objects.get(pk = imageB)
+        project.name = name
+        project.type = type
+        project.imageA = imageA
+        project.imageB = imageB
+        project.status = status
+        project.save()
         return Response(
             data={"message":"更新成功"},
             status=status.HTTP_200_OK
         )
+
 
 
 class ImageUploadView(APIView):
