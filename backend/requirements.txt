@@ -13,6 +13,6 @@ opencv-python
 requests
 sympy
 celery
-djangorestframework_simplejwt
+djangorestframework_simplejwt==5.1.0
 matplotlib
 demjson
