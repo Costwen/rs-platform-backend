@@ -5,6 +5,7 @@ volumes: # 创建四个有名数据卷
         redis_vol:
         media_vol:
         static_vol:
+        jenkins_vol:
 
 networks:
         nginx_network:
@@ -13,7 +14,6 @@ networks:
 #                driver: bridge
         redis_network:
                 driver: bridge
-
 services:
         redis:
                 image:  redis:5 #注意redis不要用太新的版本，否则会因为版本不兼容退出，并且没有任何提示
