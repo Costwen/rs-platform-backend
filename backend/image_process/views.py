@@ -283,6 +283,7 @@ class ImageUploadView(APIView):
         new_record = Image(user=request.user, name=request.data["name"], type="custom", H=H, W=W)
         filename = new_record.id + ".png"
         target_img.save("./media/"+filename)
+        new_record.url = "/images/" + filename
         new_record.save()
         return Response(
             status=status.HTTP_200_OK,
