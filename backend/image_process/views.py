@@ -156,7 +156,6 @@ class ProjectSetView(APIView):
             status=status.HTTP_200_OK
         )
 
-
 # 项目详情类
 class ProjectDetailView(APIView):
     # 限制请求方式
