@@ -204,8 +204,9 @@ class ProjectDetailView(APIView):
     @login_required
     def put(self,request, pk):
         user = request.user
-        project = Project.objects.get(pk=pk)
-        if len(project) == 0:
+        try:
+            project = Project.objects.get(pk=pk)
+        except:
             return Response(
                 data={"message":"项目不存在"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -214,7 +215,7 @@ class ProjectDetailView(APIView):
         imageB = request.data.get("imageB", None)
         name = request.data.get("name", project.name)
         type = request.data.get("type", project.type)
-        status = request.data.get("status", project.status)
+        _status = request.data.get("status", project.status)
         if imageA is not None:
             imageA = Image.objects.get(pk = imageA)
         if imageB is not None:
@@ -223,7 +224,7 @@ class ProjectDetailView(APIView):
         project.type = type
         project.imageA = imageA
         project.imageB = imageB
-        project.status = status
+        project.status = _status
         project.save()
         return Response(
             data={"message":"更新成功"},
