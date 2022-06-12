@@ -191,7 +191,7 @@ class MapImageHelper:
 
         start_idy = np.floor(im_list.shape[1] * (start_y - y1) / (y2 - y1 + 1)).astype(np.int32)
         end_idy = np.floor(im_list.shape[1] * (end_y - y1) / (y2 - y1 + 1)).astype(np.int32)
-        im_list = im_list[start_idx: end_idx, start_idy: end_idy]
+        im_list = im_list[start_idy: end_idy, start_idx: end_idx]
 
         im = Image.fromarray(im_list)
         return im
