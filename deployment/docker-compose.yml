@@ -59,7 +59,7 @@ services:
                 expose:
                         - 80
                 volumes:
-                        - ./compose/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+                        - ./compose/nginx/mysite.conf:/etc/nginx/conf.d/mysite.conf
                         - ./compose/nginx/ssl:/usr/share/nginx/ssl # 挂载证书
                         - ./compose/nginx/log:/var/log/nginx
                         - media_vol:/usr/share/nginx/html/media
