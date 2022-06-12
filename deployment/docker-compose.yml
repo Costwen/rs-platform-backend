@@ -5,7 +5,6 @@ volumes: # 创建四个有名数据卷
         redis_vol:
         media_vol:
         static_vol:
-        jenkins_vol:
 
 networks:
         nginx_network:
@@ -68,4 +67,5 @@ services:
                         - nginx_network
                 depends_on:
                         - web
-                restart: always
+                        - redis
+#                restart: always
