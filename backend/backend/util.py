@@ -33,6 +33,15 @@ class Predictor:
         # self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
 
     @classmethod
+    def _generate_translucent_background(cls,binary_mask, color_mask):
+        assert binary_mask.shape == color_mask.shape
+        result_array = np.zeros([binary_mask.shape[0], binary_mask.shape[1], 4])
+        result_array[:,:,:3] = color_mask
+        result_array[:,:,3] = binary_mask*255-128
+
+        return Image.fromarray(np.uint8(result_array),"RGBA")
+
+    @classmethod
     def _get_color_map_list(cls,num_classes, custom_color=None):
         num_classes += 1
         color_map = num_classes * [0, 0, 0]
@@ -52,12 +61,15 @@ class Predictor:
         return color_map
 
     @classmethod
-    def _get_pseudo_color_map(cls, pred, color_map=None):
+    def _get_pseudo_color_map(cls, pred, color_map=None, translucent_background=True):
         pred_mask = PIL.Image.fromarray(pred.astype("uint8"), mode='P')
         if color_map is None:
             color_map = Predictor._get_color_map_list(num_classes=256)
         pred_mask.putpalette(color_map)
-        return pred_mask
+        if translucent_background:
+            return Predictor._generate_translucent_background(pred, np.array(pred_mask))
+        else:
+            return pred_mask
 
     @classmethod
     def _normalize(cls, im, mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]):
@@ -107,6 +119,7 @@ class Predictor:
         input_names = self.sort_predictor.get_input_names()
         input_handle = self.sort_predictor.get_input_handle(input_names[0])
         input_data = np.array(file).astype("float32")
+        input_shape = input_data.shape
         input_data = self._normalize(input_data)
         input = input_data.transpose([2, 0, 1])
         input = input[np.newaxis, :, :, :]
@@ -119,7 +132,9 @@ class Predictor:
         output_handle = self.sort_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze().astype("uint8")
-        output_img = self._get_pseudo_color_map(output)
+        output_img = self._get_pseudo_color_map(output,translucent_background=False)
+        if output_img.size != file.size:
+            output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
         return output_img, np.bincount(output.reshape(-1))[:len(self.config.sort_category)]
 
     def detection_predict(self, file):
@@ -130,6 +145,7 @@ class Predictor:
         input_handle = self.retrieval_predictor.get_input_handle(input_names[0])
         # input_data = np.array(file.resize([1024,1024])).astype("float32")
         input_data = np.array(file).astype("float32")
+        input_shape = input_data.shape
         input_data = self._normalize(input_data)
         input = input_data.transpose([2, 0, 1])
         input = input[np.newaxis, :, :, :]
@@ -142,7 +158,9 @@ class Predictor:
         output_handle = self.retrieval_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze().astype("uint8")
-        output_img = self._get_pseudo_color_map(output)
+        output_img = self._get_pseudo_color_map(output,translucent_background=True)
+        if output_img.size != file.size:
+            output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
         return output_img, np.bincount(output.reshape(-1))[1]
 
 
