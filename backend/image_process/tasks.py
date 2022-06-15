@@ -13,6 +13,12 @@ import PIL
 from backend.Config import Config
 from celery.utils.log import get_task_logger
 import os
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from django.core.cache import cache
+
+channel_layer = get_channel_layer()
+
 logger = get_task_logger(__name__)
 
 def retrieval(task):
@@ -43,6 +49,18 @@ def retrieval(task):
     task.mask = mask
     task.status = "finished"
     task.save()
+    message = {
+        'type': 'websocket.celery',
+        "message": {
+            "id": str(task.id),
+            "status": task.status,
+        }
+    }
+    print(cache.get(task.user.pk))
+    async_to_sync(channel_layer.send)(
+        cache.get(task.user.pk),
+        message
+    )
 
 def sort(task):
     pass

@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "image_process",
     "account",
-    "rest_framework"
+    "rest_framework",
+    "channels"
 ]
 
 #TODO:生产环境下请把CSRF打开。
@@ -128,6 +129,32 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
+
+
+ # 设置ASGI应用
+ASGI_APPLICATION = "backend.asgi.application"
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": ["redis://:jxdhandsome@101.43.134.156:6378/2"],
+        },
+    },
+}
+
+# redis配置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://:jxdhandsome@101.43.134.156:6378/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {"max_connections": 100}
+        }
+    }
+}
+
 
 LANGUAGE_CODE = 'en-us'
 

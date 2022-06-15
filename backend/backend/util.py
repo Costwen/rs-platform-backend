@@ -66,10 +66,11 @@ class Predictor:
         if color_map is None:
             color_map = Predictor._get_color_map_list(num_classes=256)
         pred_mask.putpalette(color_map)
+        pred_mask = pred_mask.convert('RGBA')
+        pred_mask = np.array(pred_mask)
         if translucent_background:
-            return Predictor._generate_translucent_background(pred, np.array(pred_mask))
-        else:
-            return pred_mask
+            pred_mask[np.where(pred == 0)] = (0, 0, 0, 0)
+        return PIL.Image.fromarray(pred_mask)
 
     @classmethod
     def _normalize(cls, im, mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]):
