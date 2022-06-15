@@ -12,5 +12,5 @@ RUN chown -R root:root /usr/share/nginx/html/media \
 ADD mysite.conf /etc/nginx/conf.d/
 ADD nginx.conf /etc/nginx/
 #关闭daemon，前台执行
-#RUN tail /etc/nginx/conf.d/mysite.conf
+RUN tail /etc/nginx/conf.d/mysite.conf
 CMD ["nginx", "-g", "daemon off;"]
