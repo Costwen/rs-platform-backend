@@ -16,3 +16,5 @@ celery
 djangorestframework_simplejwt==5.1.0
 matplotlib
 demjson
+channels
+channels-redis
