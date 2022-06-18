@@ -14,7 +14,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 import demjson
 from .serializer import ImageSerializer
-# 验证登录
 # 跳转到登录界面更好
 def login_required(func):
     def wrapper(self, request,*args,**kwargs):
