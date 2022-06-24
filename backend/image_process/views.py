@@ -218,12 +218,12 @@ class ProjectDetailView(APIView):
         _status = request.data.get("status", project.status)
         if imageA is not None:
             imageA = Image.objects.get(pk = imageA)
+            project.imageA = imageA
         if imageB is not None:
             imageB = Image.objects.get(pk = imageB)
+            project.imageB = imageB
         project.name = name
         project.type = type
-        project.imageA = imageA
-        project.imageB = imageB
         project.status = _status
         project.save()
         return Response(
