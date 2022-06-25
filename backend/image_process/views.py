@@ -6,6 +6,7 @@ from backend.util import MapImageHelper
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
 import PIL
+from django.db.models import Q
 from image_process.models import *
 from django.shortcuts import get_object_or_404
 from image_process.tasks import *
@@ -263,6 +264,16 @@ class ImageUploadView(APIView):
     @login_required
     def get(self, request):
         images = Image.objects.filter(user = request.user)
+        param = request.query_params
+        type = param.get("type", None)
+        if type == "all":
+            images = images.filter(Q(type="custom")|Q(type="public"))
+        elif type == "mask":
+            images = images.filter(type="mask")
+        elif type == "custom":
+            images = images.filter(type="custom")
+        elif type == "public":
+            images = images.filter(type="public")
         result = []
         for img in images:
             result.append(image2json(img))
