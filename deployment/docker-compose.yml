@@ -34,8 +34,8 @@ services:
                         - "9000:9000"
                 expose:
                         - "8000"
-                        - "8001"
-                        - "9000"
+#                        - "8001"
+#                        - "9000"
                 volumes:
                         - ../backend:/root/backend
                         - ./compose/uwsgi/:/tmp
