@@ -21,7 +21,7 @@ from .channelsmiddleware import JwtAuthMiddlewareStack
 
 application = ProtocolTypeRouter(
     {
-        # "http": get_asgi_application(),
+        "http": get_asgi_application(),
         "websocket": AllowedHostsOriginValidator(
             JwtAuthMiddlewareStack(
                 URLRouter(websocket_urlpatterns)
