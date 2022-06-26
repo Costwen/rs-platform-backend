@@ -173,7 +173,21 @@ class MapImageHelper:
     @staticmethod
     def getImage(x1, y1, x2, y2, zoom=18):
         x1, y1, x2, y2, start_x, start_y, end_x, end_y = MapImageHelper.coordinate_transfer(x1, y1, x2, y2, zoom)
-        im_list = []
+        # im_list = []
+        # for i in range(x1, x2 + 1):
+        #     for j in range(y1, y2 + 1):
+        #         url = Map_url_template.format(i, j)
+        #         response = requests.get(url)
+        #         data = response.content
+        #         image = Image.open(BytesIO(data)).convert('RGB')
+        #         im = np.array(image)
+        #         print(im.shape)
+        #         im_list.append(im)
+        # im_list = np.array(im_list).reshape([x2 - x1 + 1, y2 - y1 + 1, 256, 256, 3])
+        # im_list = np.transpose(im_list, [1, 2, 0, 3, 4])
+        # im_list = im_list.reshape([256 * (x2 - x1 + 1), 256 * (y2 - y1 + 1), 3])
+
+        im_list = np.zeros([256 * (y2 - y1 + 1), 256 * (x2 - x1 + 1), 3])
         for i in range(x1, x2 + 1):
             for j in range(y1, y2 + 1):
                 url = Map_url_template.format(i, j)
@@ -181,11 +195,8 @@ class MapImageHelper:
                 data = response.content
                 image = Image.open(BytesIO(data)).convert('RGB')
                 im = np.array(image)
-                print(im.shape)
-                im_list.append(im)
-        im_list = np.array(im_list).reshape([x2 - x1 + 1, y2 - y1 + 1, 256, 256, 3])
-        im_list = np.transpose(im_list, [1, 2, 0, 3, 4])
-        im_list = im_list.reshape([256 * (x2 - x1 + 1), 256 * (y2 - y1 + 1), 3])
+                # im_list.append(im)
+                im_list[(j - y1) * 256:(j - y1 + 1) * 256, (i - x1) * 256:(i - x1 + 1) * 256, :] = im
 
         start_idx = np.floor(im_list.shape[0] * (start_x - x1) / (x2 - x1 + 1)).astype(np.int32)
         end_idx = np.floor(im_list.shape[0] * (end_x - x1) / (x2 - x1 + 1)).astype(np.int32)
