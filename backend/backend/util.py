@@ -198,11 +198,11 @@ class MapImageHelper:
                 # im_list.append(im)
                 im_list[(j - y1) * 256:(j - y1 + 1) * 256, (i - x1) * 256:(i - x1 + 1) * 256, :] = im
 
-        start_idx = np.floor(im_list.shape[0] * (start_x - x1) / (x2 - x1 + 1)).astype(np.int32)
-        end_idx = np.floor(im_list.shape[0] * (end_x - x1) / (x2 - x1 + 1)).astype(np.int32)
+        start_idx = np.floor(im_list.shape[1] * (start_x - x1) / (x2 - x1 + 1)).astype(np.int32)
+        end_idx = np.floor(im_list.shape[1] * (end_x - x1) / (x2 - x1 + 1)).astype(np.int32)
 
-        start_idy = np.floor(im_list.shape[1] * (start_y - y1) / (y2 - y1 + 1)).astype(np.int32)
-        end_idy = np.floor(im_list.shape[1] * (end_y - y1) / (y2 - y1 + 1)).astype(np.int32)
+        start_idy = np.floor(im_list.shape[0] * (start_y - y1) / (y2 - y1 + 1)).astype(np.int32)
+        end_idy = np.floor(im_list.shape[0] * (end_y - y1) / (y2 - y1 + 1)).astype(np.int32)
         im_list = im_list[start_idy: end_idy, start_idx: end_idx]
 
         im = Image.fromarray(np.uint8(im_list),"RGB")
