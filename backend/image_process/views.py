@@ -96,6 +96,15 @@ class TaskDetailView(APIView):
     def delete(self,request, pk):
         user = request.user
         task = get_object_or_404(Task,user = user,pk = pk)
+        imageA = task.imageA
+        imageB = task.imageB
+        mask = task.mask
+        if imageA and imageA.type == "task":
+            imageA.delete()
+        if imageB and imageB.type == "task":
+            imageB.delete()
+        if mask:
+            mask.delete()
         task.delete()
         return Response(
             data={"message":"删除成功"},
