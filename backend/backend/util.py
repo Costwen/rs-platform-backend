@@ -172,7 +172,8 @@ def toRad(value):
 class MapImageHelper:
     @staticmethod
     def getImage(x1, y1, x2, y2, zoom=18):
-        x1, y1, x2, y2, start_x, start_y, end_x, end_y = MapImageHelper.coordinate_transfer(x1, y1, x2, y2, zoom)
+        # x1, y1, x2, y2, start_x, start_y, end_x, end_y = MapImageHelper.coordinate_transfer(x1, y1, x2, y2, zoom)
+        x1, y1, x2, y2, start_x, start_y, end_x, end_y = MapImageHelper.coordinate_transfer(x1, y2, x2, y1, zoom)
         # im_list = []
         # for i in range(x1, x2 + 1):
         #     for j in range(y1, y2 + 1):
