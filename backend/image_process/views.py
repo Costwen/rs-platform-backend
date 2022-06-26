@@ -99,9 +99,9 @@ class TaskDetailView(APIView):
         imageA = task.imageA
         imageB = task.imageB
         mask = task.mask
-        if imageA:
+        if imageA and imageA.type == "task":
             imageA.delete()
-        if imageB:
+        if imageB and imageB.type == "task":
             imageB.delete()
         if mask:
             mask.delete()
