@@ -35,8 +35,8 @@ class Project(models.Model):
     )
     name = models.CharField(verbose_name="project name", max_length=25)
     id = models.UUIDField(verbose_name="project id", primary_key=True, default=uuid_str, editable=False)
-    imageA = models.ForeignKey(to=Image, related_name="imageA_project", verbose_name="imageA", on_delete=models.CASCADE, blank=True, null=True)
-    imageB = models.ForeignKey(to=Image, related_name="imageB_project", verbose_name="imageB", on_delete=models.CASCADE, blank=True, null=True)
+    imageA = models.ForeignKey(to=Image, related_name="imageA_project", verbose_name="imageA", on_delete=models.DO_NOTHING, blank=True, null=True)
+    imageB = models.ForeignKey(to=Image, related_name="imageB_project", verbose_name="imageB", on_delete=models.DO_NOTHING, blank=True, null=True)
     
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="create time")
     modify_time = models.DateTimeField(auto_now=True, verbose_name="modify time")
