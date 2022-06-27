@@ -61,6 +61,7 @@ class TaskSetView(APIView):
                 "imageA": image2json(task.imageA),
                 "imageB": image2json(task.imageB),
                 "create_time":task.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "analysis":task.analysis,
             })
         return Response(
             data={"message":"获取成功","data":data},
@@ -88,6 +89,7 @@ class TaskDetailView(APIView):
                     "imageA": image2json(task.imageA),
                     "imageB": image2json(task.imageB),
                     "create_time":task.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "analysis":task.analysis,
                 }},
             status=status.HTTP_200_OK
         )
