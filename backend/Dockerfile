@@ -12,6 +12,7 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get install -y python3-opencv
 
 COPY pip.conf /root/.pip/pip.conf
+
 RUN pip config set global.index-url http://mirrors.aliyun.com/pypi/simple
 RUN pip config set install.trusted-host mirrors.aliyun.com
 RUN pip uninstall protobuf
@@ -27,6 +28,8 @@ RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
+COPY celeryd.conf /etc/default/celeryd
+COPY celeryd.init /etc/init.d/celeryd
 #RUN python -m pip install paddlepaddle==2.2.2 -i https://mirror.baidu.com/pypi/simple
 
 RUN chmod +x ./start.sh
