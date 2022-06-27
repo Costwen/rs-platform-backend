@@ -45,7 +45,7 @@ def retrieval(task):
     result_image.save('./media/'+filename)
     mask.url = "/images/" + filename
     mask.save()
-    # task.analysis = {"retrieval": ratio}
+    task.analysis = {"fg": int(ratio[1]), "bg": int(ratio[0])}
     task.mask = mask
     task.status = "finished"
     task.save()
