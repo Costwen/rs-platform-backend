@@ -69,7 +69,47 @@ def detection(task):
     pass
 
 def contrast(task):
-    pass
+    imageA,imageB = task.project.imageA,task.project.imageB
+    filename_a,filename_b = imageA.url.split("/")[-1],imageB.url.split("/")[-1]
+    img_a,img_b = PIL.Image.open(os.path.join("./media/", filename_a)), PIL.Image.open(os.path.join("./media/",filename_b))
+    if task.coordinate:
+        tl = task.coordinate["tl"]
+        br = task.coordinate["br"]
+        crop_a, crop_b = img_a.crop((tl[0], tl[1], br[0], br[1])), img_b.crop((tl[0],tl[1],br[0],br[1]))
+        H, W = crop_a.size
+        assert crop_a.size == crop_b.size
+        new_record_a, new_record_b = Image(user=task.user, H=H, W=W, type="task", name=""),Image(user=task.user, H=H, W=W, type="task", name="")
+        filename_a, filename_b = new_record_a.id + ".png", new_record_b.id + ".png"
+        crop_a.save(os.path.join("./media/", filename_a))
+        crop_b.save(os.path.join("./media/", filename_b))
+        new_record_a.url, new_record_b.url = "/images/" + filename_a, "/images/" + filename_b
+        new_record_a.save()
+        new_record_b.save()
+        imageA,imageB = new_record_a, new_record_b
+        img_a,img_b = crop_a, crop_b
+    task.imageA, task.imageB = imageA,imageB
+    result_img,ratio = P.contrast_predict(img_a, img_b)
+    H, W = result_img.size
+    mask = Image(user=task.user, H=H, W=W, type="mask", name="")
+    filename = mask.id + ".png"
+    result_img.save('./media/' + filename)
+    mask.url = "/images/" + filename
+    mask.save()
+    task.mask = mask
+    task.status = "finished"
+    task.save()
+    message = {
+        'type': 'websocket.celery',
+        "message": {
+            "id": str(task.id),
+            "status": task.status,
+        }
+    }
+    print(cache.get(task.user.pk))
+    async_to_sync(channel_layer.send)(
+        cache.get(task.user.pk),
+        message
+    )
 
 
 handle_func = {
