@@ -19,8 +19,8 @@ Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}
 class Predictor:
     def __init__(self, config):
         self.config = config
-        # self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
-        # self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
+        self.contrast_config = paddle_infer.Config(config.constrast_model_path, config.constrast_param_path)
+        self.contrast_predictor = paddle_infer.create_predictor(self.contrast_config)
         self.sort_config = paddle_infer.Config(config.sort_model_path, config.sort_param_path)
         self.sort_predictor = paddle_infer.create_predictor(self.sort_config)
 
@@ -87,13 +87,13 @@ class Predictor:
         result = cv2.morphologyEx(image,cv2.MORPH_CLOSE,kernel)
         return result
 
-    def contrast_predict(self, np_img,target_img):
+    def contrast_predict(self, old_img, new_img):
         input_names = self.contrast_predictor.get_input_names()
         input_handle1 = self.contrast_predictor.get_input_handle(input_names[0])
         input_handle2 = self.contrast_predictor.get_input_handle(input_names[1])
 
-        img1 = np.array(np_img.resize((1024, 1024)))
-        img2 = np.array(target_img.resize((1024, 1024)))
+        img1 = np.array(old_img.resize((1024, 1024)))
+        img2 = np.array(new_img.resize((1024, 1024)))
 
         img1 = self._normalize(img1)[np.newaxis, :, :, :]
         img2 = self._normalize(img2)[np.newaxis, :, :, :]
