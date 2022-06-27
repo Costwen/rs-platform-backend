@@ -97,15 +97,19 @@ class Predictor:
 
         img1 = self._normalize(img1)[np.newaxis, :, :, :]
         img2 = self._normalize(img2)[np.newaxis, :, :, :]
+        img1 = img1.transpose((0, 3, 1, 2))
+        img2 = img2.transpose((0, 3, 1, 2))
 
         input_handle1.reshape([1, 3, 1024, 1024])
         input_handle1.copy_from_cpu(img1)
         input_handle2.reshape([1, 3, 1024, 1024])
         input_handle2.copy_from_cpu(img2)
         # 运行predictor
+        print("run predictor")
         begin_time = time.time()
         self.contrast_predictor.run()
         end_time = time.time()
+        predict_time = end_time - begin_time
         print("predict time: %f" % (end_time - begin_time))
         # 获取输出
         output_names = self.contrast_predictor.get_output_names()
@@ -113,7 +117,7 @@ class Predictor:
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output_data = output_data.reshape(1024, 1024)
         im = Image.fromarray(output_data.astype('uint8') * 255)
-        return im, np.bincount(im.reshape(-1))
+        return im, np.bincount(im.reshape(-1)), predict_time
 
 
     def sort_predict(self, file):
@@ -127,7 +131,10 @@ class Predictor:
         input_handle.reshape([1, input.shape[0], input.shape[1], input.shape[2]])  # 这里不对输入tensor作任何处理
         input_handle.copy_from_cpu(input)
         # 运行predictor
+        begin_time = time.time()
         self.sort_predictor.run()
+        end_time = time.time()
+        predict_time = end_time - begin_time
         # 获取输出
         output_names = self.sort_predictor.get_output_names()
         output_handle = self.sort_predictor.get_output_handle(output_names[0])
@@ -136,7 +143,7 @@ class Predictor:
         output_img = self._get_pseudo_color_map(output,translucent_background=False)
         if output_img.size != file.size:
             output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
-        return output_img, np.bincount(output.reshape(-1))[:len(self.config.sort_category)]
+        return output_img, np.bincount(output.reshape(-1))[:len(self.config.sort_category)], predict_time
 
     def detection_predict(self, file):
         pass
@@ -153,7 +160,10 @@ class Predictor:
         input_handle.reshape([1, input.shape[0], input.shape[1], input.shape[2]])  # 这里不对输入tensor作任何处理
         input_handle.copy_from_cpu(input)
         # 运行predictor
+        begin_time = time.time()
         self.retrieval_predictor.run()
+        end_time = time.time()
+        predict_time = end_time - begin_time
         # 获取输出
         output_names = self.retrieval_predictor.get_output_names()
         output_handle = self.retrieval_predictor.get_output_handle(output_names[0])
@@ -162,7 +172,7 @@ class Predictor:
         output_img = self._get_pseudo_color_map(output,translucent_background=True)
         if output_img.size != file.size:
             output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
-        return output_img, np.bincount(output.reshape(-1))
+        return output_img, np.bincount(output.reshape(-1)), predict_time
 
 
 def toRad(value):

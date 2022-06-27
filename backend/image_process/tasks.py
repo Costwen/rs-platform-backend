@@ -38,14 +38,14 @@ def retrieval(task):
         imageA = new_record
         img_a = crop_img
     task.imageA = imageA
-    result_image, ratio = P.retrieval_predict(img_a)
+    result_image, ratio, predict_time = P.retrieval_predict(img_a)
     H, W = result_image.size
     mask = Image(user=task.user, H = H, W= W, type="mask", name="")
     filename = mask.id + ".png"
     result_image.save('./media/'+filename)
     mask.url = "/images/" + filename
     mask.save()
-    task.analysis = {"fg": int(ratio[1]), "bg": int(ratio[0])}
+    task.analysis = {"fg": int(ratio[1]), "bg": int(ratio[0]), "time": predict_time}
     task.mask = mask
     task.status = "finished"
     task.save()
@@ -88,7 +88,7 @@ def contrast(task):
         imageA,imageB = new_record_a, new_record_b
         img_a,img_b = crop_a, crop_b
     task.imageA, task.imageB = imageA,imageB
-    result_img,ratio = P.contrast_predict(img_a, img_b)
+    result_img,ratio, predict_time = P.contrast_predict(img_a, img_b)
     H, W = result_img.size
     mask = Image(user=task.user, H=H, W=W, type="mask", name="")
     filename = mask.id + ".png"
@@ -97,6 +97,7 @@ def contrast(task):
     mask.save()
     task.mask = mask
     task.status = "finished"
+    task.analysis = {"fg": int(ratio[1]), "bg": int(ratio[0]), "time": predict_time}
     task.save()
     message = {
         'type': 'websocket.celery',
