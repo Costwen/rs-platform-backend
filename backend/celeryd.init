@@ -1,16 +1,16 @@
 #!/bin/sh -e
 # ============================================
-#  celeryd - Starts the Celery worker daemon.
+#  celeryd.init - Starts the Celery worker daemon.
 # ============================================
 #
-# :Usage: /etc/init.d/celeryd {start|stop|force-reload|restart|try-restart|status}
-# :Configuration file: /etc/default/celeryd
+# :Usage: /etc/init.d/celeryd.init {start|stop|force-reload|restart|try-restart|status}
+# :Configuration file: /etc/default/celeryd.init
 #
 # See http://docs.celeryproject.org/en/latest/userguide/daemonizing.html
 
 
 ### BEGIN INIT INFO
-# Provides:          celeryd
+# Provides:          celeryd.init
 # Required-Start:    $network $local_fs $remote_fs
 # Required-Stop:     $network $local_fs $remote_fs
 # Default-Start:     2 3 4 5
@@ -24,7 +24,7 @@
 # I.e., if my new application, "little-worker" needs an init, I
 # should just use:
 #
-#   cp /etc/init.d/celeryd /etc/init.d/little-worker
+#   cp /etc/init.d/celeryd.init /etc/init.d/little-worker
 #
 # You can then configure this by manipulating /etc/default/little-worker.
 #
