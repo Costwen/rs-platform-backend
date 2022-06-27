@@ -187,6 +187,7 @@ class ProjectDetailView(APIView):
                 "imageA": image2json(task.imageA),
                 "imageB": image2json(task.imageB),
                 "create_time":task.create_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "analysis":task.analysis,
             })
         data = {
             "name": project.name,
