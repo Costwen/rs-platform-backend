@@ -162,7 +162,7 @@ class Predictor:
         output_img = self._get_pseudo_color_map(output,translucent_background=True)
         if output_img.size != file.size:
             output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
-        return output_img, np.bincount(output.reshape(-1))[1]
+        return output_img, np.bincount(output.reshape(-1))
 
 
 def toRad(value):
