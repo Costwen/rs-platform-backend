@@ -30,6 +30,7 @@ RUN pip install -r requirements.txt
 
 COPY celeryd.conf /etc/default/celeryd
 COPY celeryd.init /etc/init.d/celeryd
+RUN chmod 0777 /etc/init.d/celeryd
 #RUN python -m pip install paddlepaddle==2.2.2 -i https://mirror.baidu.com/pypi/simple
 
 RUN chmod +x ./start.sh
