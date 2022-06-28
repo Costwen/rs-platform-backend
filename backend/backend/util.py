@@ -148,7 +148,7 @@ class Predictor:
         img1 = self._normalize(img1)[np.newaxis, :, :, :].transpose((0,3,1,2))
         img2 = self._normalize(img2)[np.newaxis, :, :, :].transpose((0,3,1,2))
         STRIDE = 256
-        W = 512
+        W = 384
         patch_pairs = []
         for rows, cols in WindowGenerator(*ori_size, W, W, STRIDE, STRIDE):
             patch_pairs.append((img1[:, :,rows, cols], img2[:, :, rows, cols]))
