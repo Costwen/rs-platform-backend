@@ -16,6 +16,56 @@ import cv2
 Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}&z=18&scl=1"
 
 
+
+class WindowGenerator:
+    def __init__(self, h, w, ch, cw, si=1, sj=1):
+        self.h = h
+        self.w = w
+        self.ch = ch
+        self.cw = cw
+        if self.h < self.ch or self.w < self.cw:
+            raise NotImplementedError
+        self.si = si
+        self.sj = sj
+        self._i, self._j = 0, 0
+    def __next__(self):
+        # 列优先移动（C-order）
+        if self._i > self.h:
+            raise StopIteration
+        bottom = min(self._i+self.ch, self.h)
+        right = min(self._j+self.cw, self.w)
+        top = max(0, bottom-self.ch)
+        left = max(0, right-self.cw)
+
+        if self._j >= self.w-self.cw:
+            if self._i >= self.h-self.ch:
+                # 设置一个非法值，使得迭代可以early stop
+                self._i = self.h+1
+            self._goto_next_row()
+        else:
+            self._j += self.sj
+            if self._j > self.w:
+                self._goto_next_row()
+        return slice(top, bottom, 1), slice(left, right, 1)
+    def __iter__(self):
+        return self
+    def _goto_next_row(self):
+        self._i += self.si
+        self._j = 0
+        
+def recons_prob_map(patches, ori_size, window_size, stride):
+    """从裁块结果重建原始尺寸影像"""
+    h, w = ori_size
+    win_gen = WindowGenerator(h, w, window_size, window_size, stride, stride)
+    prob_map = np.zeros((h,w), dtype=np.float)
+    cnt = np.zeros((h,w), dtype=np.float)
+    # XXX: 需要保证win_gen与patches具有相同长度。此处未做检查
+    for (rows, cols), patch in zip(win_gen, patches):
+        prob_map[rows, cols] += patch
+        cnt[rows, cols] += 1
+    prob_map /= cnt
+    return prob_map
+
 class Predictor:
     def __init__(self, config):
         self.config = config
@@ -91,33 +141,39 @@ class Predictor:
         input_names = self.contrast_predictor.get_input_names()
         input_handle1 = self.contrast_predictor.get_input_handle(input_names[0])
         input_handle2 = self.contrast_predictor.get_input_handle(input_names[1])
-
+        predictor = self.contrast_predictor
         img1 = np.array(old_img.resize((1024, 1024)))
         img2 = np.array(new_img.resize((1024, 1024)))
-
-        img1 = self._normalize(img1)[np.newaxis, :, :, :]
-        img2 = self._normalize(img2)[np.newaxis, :, :, :]
-        img1 = img1.transpose((0, 3, 1, 2))
-        img2 = img2.transpose((0, 3, 1, 2))
-
-        input_handle1.reshape([1, 3, 1024, 1024])
-        input_handle1.copy_from_cpu(img1)
-        input_handle2.reshape([1, 3, 1024, 1024])
-        input_handle2.copy_from_cpu(img2)
-        # 运行predictor
-        print("run predictor")
-        begin_time = time.time()
-        self.contrast_predictor.run()
-        end_time = time.time()
-        predict_time = end_time - begin_time
-        print("predict time: %f" % (end_time - begin_time))
-        # 获取输出
-        output_names = self.contrast_predictor.get_output_names()
-        output_handle = self.contrast_predictor.get_output_handle(output_names[0])
-        output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
-        output_data = output_data.reshape(1024, 1024)
-        im = Image.fromarray(output_data.astype('uint8') * 255)
-        return im, np.bincount(im.reshape(-1)), predict_time
+        ori_size = (1024, 1024)
+        img1 = self._normalize(img1)[np.newaxis, :, :, :].transpose((0,3,1,2))
+        img2 = self._normalize(img2)[np.newaxis, :, :, :].transpose((0,3,1,2))
+        STRIDE = 256
+        W = 512
+        patch_pairs = []
+        for rows, cols in WindowGenerator(*ori_size, W, W, STRIDE, STRIDE):
+            patch_pairs.append((img1[:, :,rows, cols], img2[:, :, rows, cols]))
+        input_handle1.reshape([1, 3, W, W])
+        input_handle2.reshape([1, 3, W, W])
+        output_names = predictor.get_output_names()
+        output_handle = predictor.get_output_handle(output_names[0])
+        result_list = []
+        predict_time = 0
+        for im1, im2 in patch_pairs:
+            input_handle1.copy_from_cpu(im1)
+            input_handle2.copy_from_cpu(im2)
+            begin_time = time.time()
+            predictor.run()
+            end_time = time.time()
+            predict_time += end_time - begin_time
+            print("predict time: %f" % (end_time - begin_time))
+            output_data = output_handle.copy_to_cpu() # numpy.ndarray类型
+            output_data = output_data.reshape((W, W))
+            result_list.append(output_data)
+        prob_map = recons_prob_map(result_list, ori_size, W, STRIDE)
+    # 对概率图进行阈值分割，得到二值变化图
+        output = (prob_map>=0.5).astype('int32')
+        output_img = self._get_pseudo_color_map(output,translucent_background=True)
+        return output_img, np.bincount(output.reshape(-1)), predict_time
 
 
     def sort_predict(self, file):
