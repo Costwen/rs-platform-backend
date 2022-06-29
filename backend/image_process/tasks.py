@@ -6,7 +6,6 @@ from backend import celery_app
 import time
 from backend.util import MapImageHelper
 from backend.settings import predictor as P
-from django.http import request,JsonResponse
 from rest_framework import status
 from image_process.models import Image, Task, Project
 import PIL
@@ -63,7 +62,49 @@ def retrieval(task):
     )
 
 def sort(task):
-    pass
+    imageA = task.project.imageA
+    filename = imageA.url.split("/")[-1]
+    img_a = PIL.Image.open(os.path.join("./media/", filename))
+    if task.coordinate:
+        tl = task.coordinate["tl"]
+        br = task.coordinate["br"] 
+        crop_img = img_a.crop((tl[0], tl[1], br[0], br[1]))
+        H, W = crop_img.size
+        new_record = Image(user = task.user, H = H, W = W, type="task", name="")
+        filename = new_record.id + ".png"
+        crop_img.save(os.path.join("./media/", filename))
+        new_record.url = "/images/" + filename
+        new_record.save()
+        imageA = new_record
+        img_a = crop_img
+    task.imageA = imageA
+    result_image, ratio, predict_time = P.sort_predict(img_a)
+    H, W = result_image.size
+    mask = Image(user=task.user, H = H, W= W, type="mask", name="")
+    filename = mask.id + ".png"
+    result_image.save('./media/'+filename)
+    mask.url = "/images/" + filename
+    mask.save()
+    categories = Config.sort_category
+    for i in range(len(categories)):
+        categories[i] = {"name": categories[i], "value": int(ratio[i])}
+    task.analysis = {"categories": categories, "time": predict_time}
+    print(task.analysis)
+    task.mask = mask
+    task.status = "finished"
+    task.save()
+    message = {
+        'type': 'websocket.celery',
+        "message": {
+            "id": str(task.id),
+            "status": task.status,
+        }
+    }
+    print(cache.get(task.user.pk))
+    async_to_sync(channel_layer.send)(
+        cache.get(task.user.pk),
+        message
+    )
 
 def detection(task):
     pass
