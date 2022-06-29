@@ -86,10 +86,10 @@ def sort(task):
     mask.url = "/images/" + filename
     mask.save()
     categories = Config.sort_category
+    data = []
     for i in range(len(categories)):
-        categories[i] = {"name": categories[i], "value": int(ratio[i])}
-    task.analysis = {"categories": categories, "time": predict_time}
-    print(task.analysis)
+        data.append({"name": categories[i], "value": int(ratio[i])})
+    task.analysis = {"categories": data, "time": predict_time}
     task.mask = mask
     task.status = "finished"
     task.save()
