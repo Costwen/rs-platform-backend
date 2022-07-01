@@ -9,12 +9,24 @@ import PIL
 import time
 import numpy as np
 import requests
-from PIL import Image
 from io import BytesIO
 import cv2
-
+from PIL import Image, ImageDraw, ImageFont
 Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}&z=18&scl=1"
 
+
+def cv2ImgAddText(img, text, left, top, textColor=(0, 255, 0), textSize=20):
+    if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
+        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # 创建一个可以在给定图像上绘图的对象
+    draw = ImageDraw.Draw(img)
+    # 字体的格式
+    fontStyle = ImageFont.truetype(
+        "font/simsun.ttc", textSize, encoding="utf-8")
+    # 绘制文本
+    draw.text((left, top - 22), text, textColor, font=fontStyle)
+    # 转换回OpenCV格式
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
 
 class WindowGenerator:
@@ -234,7 +246,7 @@ class Predictor:
             color_tuple = tuple(self.config.detection_color_list[3*int(c):3*int(c)+3])
             if p > 0.5:
                 cv2.rectangle(mask, (int(l), int(t)), (int(r), int(b)), color_tuple, 2)
-                cv2.putText(mask, self.config.detection_label_list[int(c)], (int(l), int(t)), cv2.FONT_HERSHEY_SIMPLEX, 1, color_tuple, 2)
+                mask = cv2ImgAddText(mask, self.config.detection_label_list[int(c)], int(l), int(t), color_tuple)
                 statistic[int(c)] += 1
 
         transparent_result = np.zeros((org_size[0], org_size[1], 4))
