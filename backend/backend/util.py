@@ -231,15 +231,19 @@ class Predictor:
         statistic = [0 for i in range(0, 15)]
         for item in output_data:
             c, p, l, t, r, b = item
+            color_tuple = tuple(self.config.detection_color_list[3*int(c):3*int(c)+3])
             if p > 0.5:
-                cv2.rectangle(mask, (int(l), int(t)), (int(r), int(b)), (0, 255, 0), 2)
-                cv2.putText(mask, str(int(c)), (int(l), int(t)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.rectangle(mask, (int(l), int(t)), (int(r), int(b)), color_tuple, 2)
+                cv2.putText(mask, self.config.detection_label_list[int(c)], (int(l), int(t)), cv2.FONT_HERSHEY_SIMPLEX, 1, color_tuple, 2)
                 statistic[int(c)] += 1
 
         transparent_result = np.zeros((org_size[0], org_size[1], 4))
         transparent_result[:,:,:3] = mask
-        transparent_result[:,:,3] = np.sum(mask,2)
-        np.where(transparent_result[:,:,3] == 765, 0,255)
+        transparent_mask = np.sum(mask,2)
+        transparent_mask[transparent_mask != 765] = 255
+        transparent_mask[transparent_mask == 765] = 0
+
+        transparent_result[:,:,3] = transparent_mask
         result = Image.fromarray(np.uint8(transparent_result),"RGBA")
         return result, statistic, end_time - begin_time
 
