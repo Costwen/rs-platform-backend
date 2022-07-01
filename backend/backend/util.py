@@ -241,7 +241,7 @@ class Predictor:
         transparent_result[:,:,3] = np.sum(mask,2)
         np.where(transparent_result[:,:,3] == 765, 0,255)
         result = Image.fromarray(np.uint8(transparent_result),"RGBA")
-        return transparent_result, statistic, end_time - begin_time
+        return result, statistic, end_time - begin_time
 
     def retrieval_predict(self, file):
         input_names = self.retrieval_predictor.get_input_names()
