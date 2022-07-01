@@ -107,7 +107,46 @@ def sort(task):
     )
 
 def detection(task):
-    pass
+    imageA = task.project.imageA
+    filename = imageA.url.split("/")[-1]
+    img_a = PIL.Image.open(os.path.join("./media/", filename))
+    if task.coordinate:
+        tl = task.coordinate["tl"]
+        br = task.coordinate["br"]
+        crop_img = img_a.crop((tl[0], tl[1], br[0], br[1]))
+        H, W = crop_img.size
+        new_record = Image(user=task.user, H=H, W=W, type="task", name="")
+        filename = new_record.id + ".png"
+        crop_img.save(os.path.join("./media/", filename))
+        new_record.url = "/images/" + filename
+        new_record.save()
+        imageA = new_record
+        img_a = crop_img
+    task.imageA = imageA
+    result_image, statistic, predict_time = P.detection_predict(img_a)
+    H, W = result_image.size
+    mask = Image(user=task.user, H=H, W=W, type="mask", name="")
+    filename = mask.id + ".png"
+    result_image.save('./media/' + filename)
+    mask.url = "/images/" + filename
+    mask.save()
+
+    task.analysis = {"categories": statistic, "time": predict_time}
+    task.mask = mask
+    task.status = "finished"
+    task.save()
+    message = {
+        'type': 'websocket.celery',
+        "message": {
+            "id": str(task.id),
+            "status": task.status,
+        }
+    }
+    print(cache.get(task.user.pk))
+    async_to_sync(channel_layer.send)(
+        cache.get(task.user.pk),
+        message
+    )
 
 def contrast(task):
     imageA,imageB = task.project.imageA,task.project.imageB

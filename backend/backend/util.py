@@ -78,9 +78,9 @@ class Predictor:
         if config.enable_gpu:
             self.retrieval_config.enable_use_gpu(memory_pool_init_size_mb=2048,device_id=0)
         self.retrieval_predictor = paddle_infer.create_predictor(self.retrieval_config)
-        #
-        # self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
-        # self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
+
+        self.detection_config = paddle_infer.Config(config.detection_model_path, config.detection_param_path)
+        self.detection_predictor = paddle_infer.create_predictor(self.detection_config)
 
     @classmethod
     def _generate_translucent_background(cls,binary_mask, color_mask):
@@ -196,13 +196,52 @@ class Predictor:
         output_handle = self.sort_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze().astype("uint8")
-        output_img = self._get_pseudo_color_map(output,translucent_background=False)
+
+        output_img = self._get_pseudo_color_map(output,color_map=self.config.sort_color_map,translucent_background=False)
         if output_img.size != file.size:
             output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
         return output_img, np.bincount(output.reshape(-1))[:len(self.config.sort_category)], predict_time
 
     def detection_predict(self, file):
-        pass
+        input_names = self.detection_predictor.get_input_names()
+        shape_handler = self.detection_predictor.get_input_handle(input_names[0])
+        image_handler = self.detection_predictor.get_input_handle(input_names[1])
+        scale_handler = self.detection_predictor.get_input_handle(input_names[2])
+
+        org_size = file.size
+        img = file.resize((640, 640))
+        scale_factor = np.array([640.0 / org_size[0], 640.0 / org_size[1]]).astype('float32')
+        img = np.array(img)
+        shape = img.shape
+        img = self._normalize(img)[np.newaxis, :, :, :].transpose((0, 3, 1, 2)).astype('float32')
+        shape_handler.copy_from_cpu(np.array([[shape[0], shape[1]]]).astype('float32'))
+        image_handler.reshape((1, 3, shape[0], shape[1]))
+        image_handler.copy_from_cpu(img)
+        scale_handler.copy_from_cpu(scale_factor)
+        begin_time = time.time()
+        self.detection_predictor.run()
+        end_time = time.time()
+        print("predict time: %f" % (end_time - begin_time))
+        # 获取输出
+        output_names = self.detection_predictor.get_output_names()
+        output_handle = self.detection_predictor.get_output_handle(output_names[0])
+        output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
+
+        mask = np.ones_like(np.array(file))*255
+        statistic = [0 for i in range(0, 15)]
+        for item in output_data:
+            c, p, l, t, r, b = item
+            if p > 0.5:
+                cv2.rectangle(mask, (int(l), int(t)), (int(r), int(b)), (0, 255, 0), 2)
+                cv2.putText(mask, str(int(c)), (int(l), int(t)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                statistic[int(c)] += 1
+
+        transparent_result = np.zeros((org_size[0], org_size[1], 4))
+        transparent_result[:,:,:3] = mask
+        transparent_result[:,:,3] = np.sum(mask,2)
+        np.where(transparent_result[:,:,3] == 765, 0,255)
+        result = Image.fromarray(np.uint8(transparent_result),"RGBA")
+        return transparent_result, statistic, end_time - begin_time
 
     def retrieval_predict(self, file):
         input_names = self.retrieval_predictor.get_input_names()
