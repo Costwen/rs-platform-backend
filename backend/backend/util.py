@@ -219,10 +219,9 @@ class Predictor:
         shape_handler = self.detection_predictor.get_input_handle(input_names[0])
         image_handler = self.detection_predictor.get_input_handle(input_names[1])
         scale_handler = self.detection_predictor.get_input_handle(input_names[2])
-
         org_size = file.size
         img = file.resize((640, 640))
-        scale_factor = np.array([640.0 / org_size[0], 640.0 / org_size[1]]).astype('float32')
+        scale_factor = np.array([640.0 / org_size[1], 640.0 / org_size[0]]).astype('float32')
         img = np.array(img)
         shape = img.shape
         img = self._normalize(img)[np.newaxis, :, :, :].transpose((0, 3, 1, 2)).astype('float32')
@@ -239,7 +238,7 @@ class Predictor:
         output_handle = self.detection_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
 
-        mask = np.ones_like(np.array(file))*255
+        mask = np.ones_like(np.array(file)) * 255
         statistic = [0 for i in range(0, 15)]
         for item in output_data:
             c, p, l, t, r, b = item
@@ -249,7 +248,7 @@ class Predictor:
                 mask = cv2ImgAddText(mask, self.config.detection_label_list[int(c)], int(l), int(t), color_tuple)
                 statistic[int(c)] += 1
 
-        transparent_result = np.zeros((org_size[0], org_size[1], 4))
+        transparent_result = np.zeros((org_size[1], org_size[0], 4))
         transparent_result[:,:,:3] = mask
         transparent_mask = np.sum(mask,2)
         transparent_mask[transparent_mask != 765] = 255
