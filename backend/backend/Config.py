@@ -17,7 +17,8 @@ class Config:
     constrast_param_path = "params/deploy_contrast/model.pdiparams"
 
     sort_category = ["Bare soil","Building","Pavement","Road","Vegetation","Water"]
-    sort_color_map = ['#d9a146', '#525e71', '#2ec4b6', '#343a40', '#73a942', '#90e0ef']
+    sort_color_map = [217,161,70,82,94,113,46,196,182,52,58,64,115,169,66,162,224,240]
+    # ['#d9a146', '#525e71', '#2ec4b6', '#343a40', '#73a942', '#90e0ef']
 
     enable_gpu = False
 
