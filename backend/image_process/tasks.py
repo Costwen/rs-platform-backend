@@ -90,6 +90,7 @@ def sort(task):
     for i in range(len(categories)):
         data.append({"name": categories[i], "value": int(ratio[i])})
     task.analysis = {"categories": data, "time": predict_time}
+    print(task.analysis)
     task.mask = mask
     task.status = "finished"
     task.save()
