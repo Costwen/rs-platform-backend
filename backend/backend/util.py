@@ -9,12 +9,24 @@ import PIL
 import time
 import numpy as np
 import requests
-from PIL import Image
 from io import BytesIO
 import cv2
-
+from PIL import Image, ImageDraw, ImageFont
 Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}&z=18&scl=1"
 
+
+def cv2ImgAddText(img, text, left, top, textColor=(0, 255, 0), textSize=20):
+    if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
+        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # 创建一个可以在给定图像上绘图的对象
+    draw = ImageDraw.Draw(img)
+    # 字体的格式
+    fontStyle = ImageFont.truetype(
+        "font/simsun.ttc", textSize, encoding="utf-8")
+    # 绘制文本
+    draw.text((left, top - 22), text, textColor, font=fontStyle)
+    # 转换回OpenCV格式
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
 
 class WindowGenerator:
@@ -207,10 +219,9 @@ class Predictor:
         shape_handler = self.detection_predictor.get_input_handle(input_names[0])
         image_handler = self.detection_predictor.get_input_handle(input_names[1])
         scale_handler = self.detection_predictor.get_input_handle(input_names[2])
-
         org_size = file.size
         img = file.resize((640, 640))
-        scale_factor = np.array([640.0 / org_size[0], 640.0 / org_size[1]]).astype('float32')
+        scale_factor = np.array([640.0 / org_size[1], 640.0 / org_size[0]]).astype('float32')
         img = np.array(img)
         shape = img.shape
         img = self._normalize(img)[np.newaxis, :, :, :].transpose((0, 3, 1, 2)).astype('float32')
@@ -227,17 +238,17 @@ class Predictor:
         output_handle = self.detection_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
 
-        mask = np.ones_like(np.array(file))*255
+        mask = np.ones_like(np.array(file)) * 255
         statistic = [0 for i in range(0, 15)]
         for item in output_data:
             c, p, l, t, r, b = item
             color_tuple = tuple(self.config.detection_color_list[3*int(c):3*int(c)+3])
             if p > 0.5:
                 cv2.rectangle(mask, (int(l), int(t)), (int(r), int(b)), color_tuple, 2)
-                cv2.putText(mask, self.config.detection_label_list[int(c)], (int(l), int(t)), cv2.FONT_HERSHEY_SIMPLEX, 1, color_tuple, 2)
+                mask = cv2ImgAddText(mask, self.config.detection_label_list[int(c)], int(l), int(t), color_tuple)
                 statistic[int(c)] += 1
 
-        transparent_result = np.zeros((org_size[0], org_size[1], 4))
+        transparent_result = np.zeros((org_size[1], org_size[0], 4))
         transparent_result[:,:,:3] = mask
         transparent_mask = np.sum(mask,2)
         transparent_mask[transparent_mask != 765] = 255
