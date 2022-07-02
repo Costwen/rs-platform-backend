@@ -123,7 +123,7 @@ class Predictor:
         return PIL.Image.fromarray(pred_mask)
 
     @classmethod
-    def _normalize(cls, im, mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]):
+    def _normalize(cls, im, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
         im = im.astype(np.float32, copy=False) / 255.0
         im -= mean
         im /= std
@@ -172,7 +172,7 @@ class Predictor:
         prob_map = recons_prob_map(result_list, ori_size, W, STRIDE)
     # 对概率图进行阈值分割，得到二值变化图
         output = (prob_map>=0.5).astype('int32')
-        output_img = self._get_pseudo_color_map(output,translucent_background=True)
+        output_img = self._get_pseudo_color_map(output,color_map=[255,0,0],translucent_background=True)
         return output_img, np.bincount(output.reshape(-1)), predict_time
 
 
@@ -268,7 +268,7 @@ class Predictor:
         output_handle = self.retrieval_predictor.get_output_handle(output_names[0])
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
         output = output_data.squeeze().astype("uint8")
-        output_img = self._get_pseudo_color_map(output,translucent_background=True)
+        output_img = self._get_pseudo_color_map(output,color_map=[255,0,0],translucent_background=True)
         if output_img.size != file.size:
             output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
         return output_img, np.bincount(output.reshape(-1)), predict_time
