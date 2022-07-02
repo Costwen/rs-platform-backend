@@ -13,3 +13,4 @@ static
 backend/*.png
 backend/*.jpg
 params/
+deployment/compose/nginx/dist/

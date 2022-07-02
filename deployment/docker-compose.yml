@@ -34,8 +34,6 @@ services:
                         - "9000:9000"
                 expose:
                         - "8000"
-#                        - "8001"
-#                        - "9000"
                 volumes:
                         - ../backend:/root/backend
                         - ./compose/uwsgi/:/tmp
@@ -66,6 +64,7 @@ services:
                         - ./compose/nginx/log:/var/log/nginx
                         - media_vol:/usr/share/nginx/html/media
                         - static_vol:/usr/share/nginx/html/static
+                        - ./compose/nginx/dist:/etc/nginx/dist
                 networks:
                         - nginx_network
                 depends_on:
