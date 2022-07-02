@@ -13,5 +13,5 @@ def register_view(request):
     except:
         return Response({"message":"username or password is missing"},status=status.HTTP_400_BAD_REQUEST)
     print(username,password)
-    User.objects.create_user(username = username,password=password, email='')
+    User.objects.create_user(username = username,password=password, email=None)
     return Response({"message":"user created"},status=status.HTTP_200_OK)
