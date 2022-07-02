@@ -32,7 +32,7 @@ class User(AbstractBaseUser,PermissionsMixin):
         },
     )
     is_admin = models.BooleanField("is admin",default = False)
-    email = models.EmailField("email address",unique=True,blank = True)
+    email = models.EmailField("email address",unique=True,blank = True, null=True)
     date_joined = models.DateTimeField("date joined",auto_now_add=True)
     avatar = models.ImageField(verbose_name="user_avatar",upload_to="avatars",default="default_avatar.jpg")  # 可以规定头像的大小
 
