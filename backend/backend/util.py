@@ -25,7 +25,7 @@ def draw_box(im, np_boxes, labels, threshold=0.5):
     Returns:
         im (PIL.Image.Image): visualized image
     """
-    draw_thickness = min(im.size) // 320
+    draw_thickness = 640 // 320
     draw = ImageDraw.Draw(im)
     clsid2color = {}
     # color_list = ['#f94144', '#f3722c', '#f8961e', '#f9844a', '#f9c74f', '#90be6d', '#43aa8b', '#4d908e', '#577590', '#277da1', '#0d3082', '#88dae7', '#76cd65', '#ffc247', '#ff8133', '#eb5133']
