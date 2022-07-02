@@ -49,7 +49,7 @@ class TaskSetView(APIView):
     @login_required
     def get(self,request):
         user = request.user
-        tasks = Task.objects.filter(user=user)
+        tasks = Task.objects.filter(user=user).order_by("-create_time")
         data = []
         for task in tasks:
             data.append({
@@ -124,7 +124,7 @@ class ProjectSetView(APIView):
         param = request.query_params
         _status = param.get("status",None)
         user = request.user
-        projects = Project.objects.filter(user = user)
+        projects = Project.objects.filter(user = user).order_by("-create_time")
         if _status:
             projects = projects.filter(status = _status)
         results = []
@@ -275,7 +275,7 @@ class ImageUploadView(APIView):
     # 用户获得自己的所有图片
     @login_required
     def get(self, request):
-        images = Image.objects.filter(user = request.user)
+        images = Image.objects.filter(user = request.user).order_by("-create_time")
         param = request.query_params
         type = param.get("type", None)
         if type == "all":
