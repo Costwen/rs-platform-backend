@@ -164,8 +164,7 @@ class Predictor:
     @classmethod
     def _get_pseudo_color_map(cls, pred, color_map=None, translucent_background=True):
         pred_mask = PIL.Image.fromarray(pred.astype("uint8"), mode='P')
-        if color_map is None:
-            color_map = Predictor._get_color_map_list(num_classes=256)
+        color_map = Predictor._get_color_map_list(num_classes=256,custom_color=color_map)
         pred_mask.putpalette(color_map)
         pred_mask = pred_mask.convert('RGBA')
         pred_mask = np.array(pred_mask)
