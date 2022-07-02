@@ -14,19 +14,58 @@ import cv2
 from PIL import Image, ImageDraw, ImageFont
 Map_url_template = "https://webst01.is.autonavi.com/appmaptile?style=6&x={}&y={}&z=18&scl=1"
 
+def draw_box(im, np_boxes, labels, threshold=0.5):
+    """
+    Args:
+        im (PIL.Image.Image): PIL image
+        np_boxes (np.ndarray): shape:[N,6], N: number of box,
+                               matix element:[class, score, x_min, y_min, x_max, y_max]
+        labels (list): labels:['class1', ..., 'classn']
+        threshold (float): threshold of box
+    Returns:
+        im (PIL.Image.Image): visualized image
+    """
+    draw_thickness = min(im.size) // 320
+    draw = ImageDraw.Draw(im)
+    clsid2color = {}
+    # color_list = ['#f94144', '#f3722c', '#f8961e', '#f9844a', '#f9c74f', '#90be6d', '#43aa8b', '#4d908e', '#577590', '#277da1', '#0d3082', '#88dae7', '#76cd65', '#ffc247', '#ff8133', '#eb5133']
+    color_list = [(249,65,68), (243,114,44), (248,150,30), (249,132,74), (249,199,79), (144,190,109), (67,170,139), (77,144,142), (87,117,144), (39,125,161), (13,48,130), (136,218,231), (118,205,101), (255,194,71), (255,129,51), (235,81,51)]
+    expect_boxes = (np_boxes[:, 1] > threshold) & (np_boxes[:, 0] > -1)
+    np_boxes = np_boxes[expect_boxes, :]
+    font = ImageFont.truetype(font='font/simsun.ttc', size=draw_thickness*12)
+    for dt in np_boxes:
+        clsid, bbox, score = int(dt[0]), dt[2:], dt[1]
+        if clsid not in clsid2color:
+            clsid2color[clsid] = color_list[clsid]
+        color = tuple(clsid2color[clsid])
 
-def cv2ImgAddText(img, text, left, top, textColor=(0, 255, 0), textSize=20):
-    if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
-        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    # 创建一个可以在给定图像上绘图的对象
-    draw = ImageDraw.Draw(img)
-    # 字体的格式
-    fontStyle = ImageFont.truetype(
-        "font/simsun.ttc", textSize, encoding="utf-8")
-    # 绘制文本
-    draw.text((left, top - 22), text, textColor, font=fontStyle)
-    # 转换回OpenCV格式
-    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+        if len(bbox) == 4:
+            xmin, ymin, xmax, ymax = bbox
+            print('class_id:{:d}, confidence:{:.4f}, left_top:[{:.2f},{:.2f}],'
+                  'right_bottom:[{:.2f},{:.2f}]'.format(
+                      int(clsid), score, xmin, ymin, xmax, ymax))
+            # draw bbox
+            draw.line(
+                [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin),
+                 (xmin, ymin)],
+                width=draw_thickness,
+                fill=color)
+        elif len(bbox) == 8:
+            x1, y1, x2, y2, x3, y3, x4, y4 = bbox
+            draw.line(
+                [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x1, y1)],
+                width=2,
+                fill=color)
+            xmin = min(x1, x2, x3, x4)
+            ymin = min(y1, y2, y3, y4)
+
+        # draw label
+        text = "{} {:.4f}".format(labels[clsid], score)
+        tw, th = draw.textsize(text, font=font)
+        draw.rectangle(
+            [(xmin + 1, ymin - th), (xmin + tw + 1, ymin)], fill=color)
+        draw.text((xmin + 1, ymin - th), text, fill=(255, 255, 255), font=font)
+    return im
 
 
 class WindowGenerator:
@@ -216,16 +255,14 @@ class Predictor:
 
     def detection_predict(self, file):
         input_names = self.detection_predictor.get_input_names()
-        shape_handler = self.detection_predictor.get_input_handle(input_names[0])
-        image_handler = self.detection_predictor.get_input_handle(input_names[1])
-        scale_handler = self.detection_predictor.get_input_handle(input_names[2])
+        image_handler = self.detection_predictor.get_input_handle(input_names[0])
+        scale_handler = self.detection_predictor.get_input_handle(input_names[1])
         org_size = file.size
         img = file.resize((640, 640))
-        scale_factor = np.array([640.0 / org_size[1], 640.0 / org_size[0]]).astype('float32')
+        scale_factor = np.array([[640.0 / org_size[1], 640.0 / org_size[0]]]).astype('float32')
         img = np.array(img)
         shape = img.shape
-        img = self._normalize(img)[np.newaxis, :, :, :].transpose((0, 3, 1, 2)).astype('float32')
-        shape_handler.copy_from_cpu(np.array([[shape[0], shape[1]]]).astype('float32'))
+        img = self._normalize(img, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])[np.newaxis, :, :, :].transpose((0, 3, 1, 2)).astype('float32')
         image_handler.reshape((1, 3, shape[0], shape[1]))
         image_handler.copy_from_cpu(img)
         scale_handler.copy_from_cpu(scale_factor)
@@ -239,15 +276,14 @@ class Predictor:
         output_data = output_handle.copy_to_cpu()  # numpy.ndarray类型
 
         mask = np.ones_like(np.array(file)) * 255
+        mask = Image.fromarray(mask.astype('uint8'))
         statistic = [0 for i in range(0, 15)]
         for item in output_data:
             c, p, l, t, r, b = item
-            color_tuple = tuple(self.config.detection_color_list[3*int(c):3*int(c)+3])
             if p > 0.5:
-                cv2.rectangle(mask, (int(l), int(t)), (int(r), int(b)), color_tuple, 2)
-                mask = cv2ImgAddText(mask, self.config.detection_label_list[int(c)], int(l), int(t), color_tuple)
                 statistic[int(c)] += 1
-
+        mask = draw_box(mask, output_data, self.config.detection_label_list, 0.5)
+        mask = np.array(mask)
         transparent_result = np.zeros((org_size[1], org_size[0], 4))
         transparent_result[:,:,:3] = mask
         transparent_mask = np.sum(mask,2)
