@@ -188,6 +188,8 @@ class Predictor:
         return result
 
     def contrast_predict(self, old_img, new_img):
+        old_img = old_img.convert('RGB')
+        new_img = new_img.convert('RGB')
         input_names = self.contrast_predictor.get_input_names()
         input_handle1 = self.contrast_predictor.get_input_handle(input_names[0])
         input_handle2 = self.contrast_predictor.get_input_handle(input_names[1])
@@ -227,6 +229,7 @@ class Predictor:
 
 
     def sort_predict(self, file):
+        file = file.convert('RGB')
         input_names = self.sort_predictor.get_input_names()
         input_handle = self.sort_predictor.get_input_handle(input_names[0])
         input_data = np.array(file).astype("float32")
@@ -253,6 +256,7 @@ class Predictor:
         return output_img, np.bincount(output.reshape(-1))[:len(self.config.sort_category)], predict_time
 
     def detection_predict(self, file):
+        file = file.convert('RGB')
         input_names = self.detection_predictor.get_input_names()
         image_handler = self.detection_predictor.get_input_handle(input_names[0])
         scale_handler = self.detection_predictor.get_input_handle(input_names[1])
@@ -294,6 +298,7 @@ class Predictor:
         return result, statistic, end_time - begin_time
 
     def retrieval_predict(self, file):
+        file = file.convert('RGB')
         input_names = self.retrieval_predictor.get_input_names()
         input_handle = self.retrieval_predictor.get_input_handle(input_names[0])
         # input_data = np.array(file.resize([1024,1024])).astype("float32")
