@@ -25,7 +25,7 @@ def draw_box(im, np_boxes, labels, threshold=0.5):
     Returns:
         im (PIL.Image.Image): visualized image
     """
-    draw_thickness = 640 // 320
+    draw_thickness = 320 // 320
     draw = ImageDraw.Draw(im)
     clsid2color = {}
     # color_list = ['#f94144', '#f3722c', '#f8961e', '#f9844a', '#f9c74f', '#90be6d', '#43aa8b', '#4d908e', '#577590', '#277da1', '#0d3082', '#88dae7', '#76cd65', '#ffc247', '#ff8133', '#eb5133']
@@ -64,7 +64,7 @@ def draw_box(im, np_boxes, labels, threshold=0.5):
         tw, th = draw.textsize(text, font=font)
         draw.rectangle(
             [(xmin + 1, ymin - th), (xmin + tw + 1, ymin)], fill=color)
-        draw.text((xmin + 1, ymin - th), text, fill=(255, 255, 255), font=font)
+        draw.text((xmin + 1, ymin - th), text, fill=(0, 0, 0), font=font)
     return im
 
 
@@ -276,7 +276,7 @@ class Predictor:
 
         mask = np.ones_like(np.array(file)) * 255
         mask = Image.fromarray(mask.astype('uint8'))
-        statistic = [0 for i in range(0, 15)]
+        statistic = [0 for i in range(0, 16)]
         for item in output_data:
             c, p, l, t, r, b = item
             if p > 0.5:
