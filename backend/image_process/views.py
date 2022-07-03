@@ -300,7 +300,7 @@ class ImageUploadView(APIView):
     @login_required
     def put(self, request):
         file = request.data["file"]
-        target_img = PIL.Image.open(file)
+        target_img = PIL.Image.open(file).convert("RGB")
         H, W = target_img.size
         new_record = Image(user=request.user, name=request.data["name"], type="custom", H=H, W=W)
         filename = new_record.id + ".png"
