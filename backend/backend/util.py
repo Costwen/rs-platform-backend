@@ -253,7 +253,7 @@ class Predictor:
         output_img = self._get_pseudo_color_map(output,color_map=self.config.sort_color_map,translucent_background=False)
         if output_img.size != file.size:
             output_img = output_img.resize((file.size[0], file.size[1]), Image.NEAREST)
-        return output_img, np.bincount(output.reshape(-1))[:len(self.config.sort_category)], predict_time
+        return output_img, np.bincount(output.reshape(-1), minlength=6), predict_time
 
     def detection_predict(self, file):
         file = file.convert('RGB')
