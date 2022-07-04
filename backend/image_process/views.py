@@ -321,7 +321,8 @@ class ImageManagementView(APIView):
     @login_required
     def post(self, request, pk):
         image = get_object_or_404(Image, pk=pk)
-        image.name = request.name
+        print(request.data)
+        image.name = request.data["name"]
         image.save()
         return Response(
             status=status.HTTP_200_OK,
