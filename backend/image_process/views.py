@@ -117,7 +117,7 @@ class TaskDetailView(APIView):
 # 项目类
 class ProjectSetView(APIView):
     # 限制请求方式
-    http_method_names = ["get", "post"]
+    http_method_names = ["get", "put"]
 
     @login_required
     def get(self,request):
@@ -151,7 +151,7 @@ class ProjectSetView(APIView):
         )
 
     @login_required
-    def post(self,request):
+    def put(self,request):
         user = request.user
         imageA = request.data.get("imageA", None)
         imageB = request.data.get("imageB", None)
@@ -170,7 +170,7 @@ class ProjectSetView(APIView):
 # 项目详情类
 class ProjectDetailView(APIView):
     # 限制请求方式
-    http_method_names = ["get", "put", "delete"]
+    http_method_names = ["get", "post", "delete"]
     @login_required
     def get(self,request, pk):
         user = request.user
@@ -214,7 +214,7 @@ class ProjectDetailView(APIView):
             status=status.HTTP_200_OK
         )
     @login_required
-    def put(self,request, pk):
+    def post(self,request, pk):
         user = request.user
         try:
             project = Project.objects.get(pk=pk)
