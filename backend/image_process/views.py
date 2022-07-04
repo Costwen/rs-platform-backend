@@ -317,9 +317,9 @@ class ImageUploadView(APIView):
 
 
 class ImageManagementView(APIView):
-    http_method_names = ["put","get","delete"]
+    http_method_names = ["post","get","delete"]
     @login_required
-    def put(self, request, pk):
+    def post(self, request, pk):
         image = get_object_or_404(Image, pk=pk)
         image.name = request.name
         image.save()
