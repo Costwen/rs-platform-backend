@@ -1,7 +1,7 @@
 version: "3"
 
 volumes: # 创建四个有名数据卷
-#        db_vol:
+        db_vol:
         redis_vol:
         media_vol:
         static_vol:
@@ -9,8 +9,8 @@ volumes: # 创建四个有名数据卷
 networks:
         nginx_network:
                 driver: bridge
-#        db_network:
-#                driver: bridge
+        db_network:
+                driver: bridge
         redis_network:
                 driver: bridge
 services:
@@ -26,6 +26,22 @@ services:
                         - "6378:6378"
                 restart: always # 若容器运行发生错误时，一直重启
 
+        db:
+                image: mysql
+                env_file:
+                        - ../backend/.env
+                networks:
+                        - db_network
+                volumes:
+                        - db_vol:/var/lib/mysql:rw # 挂载数据库数据，可读可写
+                        - ./compose/mysql/conf/my.cnf:/etc/mysql/my.cnf #挂载数据库配置文件
+                        - ./compose/mysql/init:/docker-entrypoint-initdb.d/ # 挂载数据库初始化SQL脚本
+                ports:
+                        - "3306:3306"
+                expose:
+                        - 3306
+#                restart: always
+
         web:
                 build: ../backend # 基于一个Dockerfile启动，每次启动都会构建容器
                 ports:
@@ -33,7 +49,7 @@ services:
                         - "8001:8001"
                         - "9000:9000"
                 expose:
-                        - "8000"
+                        - 8000
                 volumes:
                         - ../backend:/root/backend
                         - ./compose/uwsgi/:/tmp
@@ -42,10 +58,10 @@ services:
                         - ../backend/params:/root/backend/params
                 networks:
                         - nginx_network
-#                        - db_network
+                        - db_network
                         - redis_network
                 depends_on: # 决定了容器启动的先后顺序
-#                        - db
+                        - db
                         - redis
 #                restart: always
                 tty: true
@@ -71,3 +87,4 @@ services:
                         - web
                         - redis
 #                restart: always
+
