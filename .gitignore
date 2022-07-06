@@ -12,5 +12,5 @@ media
 static
 backend/*.png
 backend/*.jpg
-params/
+params
 deployment/compose/nginx/dist/
